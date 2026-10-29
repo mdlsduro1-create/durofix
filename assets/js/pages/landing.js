@@ -13,7 +13,7 @@ export async function landing(root) {
       h("div", { class: "wordmark", "aria-label": "PULSO" }, star(), "PULSO"),
       h("h1", null, "Escuchar a cada curso, sin exponer a nadie."),
       h("p", { class: "lede mt" },
-        "PULSO es una plataforma institucional para detectar a tiempo la ansiedad escolar. Cada estudiante registra cómo se siente en menos de un minuto, ",
+        "PULSO es una plataforma institucional para detectar a tiempo la ansiedad escolar. Cuando el colegio abre una actividad, cada estudiante registra cómo se siente en menos de un minuto; ",
         "la profesional en salud mental ve un semáforo por curso, y nadie, ni siquiera ella, puede ver la respuesta de una persona en particular."),
       h("div", { class: "row mt-l" },
         logged ? link("/app", "Ir a mi panel") : link("/registro/institucion", "Registrar mi institución"),
@@ -21,7 +21,7 @@ export async function landing(root) {
     heroCard());
 
   const facts = h("section", { class: "section grid-4" },
-    fact("1 min", "al día por estudiante", "Una pregunta, cinco caras, sin escribir nada."),
+    fact("1 min", "por actividad", "Una pregunta, cinco caras, en el horario que el colegio programa."),
     fact("5", "respuestas mínimas por curso", "Por debajo de ese número el curso se muestra como protegido."),
     fact("0", "nombres en los registros", "Cada respuesta se guarda con una huella que cambia todos los días."),
     fact("2", "pasos para el personal", "Contraseña y código del celular para quien ve datos sensibles."));
@@ -30,9 +30,9 @@ export async function landing(root) {
     eyebrow("Cómo funciona"),
     h("h2", null, "Tres momentos, un mismo cuidado"),
     h("div", { class: "grid-3 mt-l" },
-      step("01", "phone", "El estudiante registra", "Elige la cara que mejor describe su día. Cada dos semanas responde el GAD-7, un cuestionario breve y validado, y si quiere, pide conversar."),
+      step("01", "phone", "El estudiante registra", "Responde cuando su curso tiene una actividad abierta: una cara para su ánimo o el GAD-7, un cuestionario breve y validado. Además tiene lecturas, juegos para calmarse y un chat con la profesional."),
       step("02", "shield", "La base de datos protege", "El nombre se separa de la respuesta. Solo se calculan promedios por curso, y solo cuando hay al menos cinco respuestas."),
-      step("03", "grid", "El colegio actúa a tiempo", "La profesional ve qué cursos necesitan atención, recibe las solicitudes de conversación y cruza el bienestar con la asistencia.")));
+      step("03", "grid", "El colegio actúa a tiempo", "La profesional programa las actividades curso por curso, ve qué cursos necesitan atención, conversa por chat con quien lo pide y cruza el bienestar con la asistencia.")));
 
   const sim = simulator();
 
@@ -61,13 +61,15 @@ export async function landing(root) {
       tl("2", "Revisión", "El equipo de PULSO verifica la institución y la habilita. Hasta entonces, nadie puede ver datos."),
       tl("3", "Configuración", "La administración activa la verificación en dos pasos, crea los cursos e invita a la profesional y a los docentes."),
       tl("4", "Inscripción", "Cada curso recibe un código. El estudiante crea su usuario con ese código y la administración lo aprueba."),
-      tl("5", "Uso diario", "Un minuto al día. El semáforo se enciende cuando hay datos suficientes para cuidar el anonimato.")));
+      tl("5", "Programación", "La profesional o la administración decide qué día y a qué hora responde cada curso. El semáforo se enciende cuando hay datos suficientes para cuidar el anonimato.")));
 
   const faq = h("section", { class: "section mid", id: "preguntas" },
     eyebrow("Preguntas frecuentes"),
     h("h2", null, "Lo que suelen preguntar las familias y los colegios"),
     h("div", { class: "mt-l" },
       q("¿La profesional puede saber qué respondió mi hijo o mi hija?", "No. Las respuestas diarias y los cuestionarios se guardan sin identidad y solo se muestran como promedios de curso. La única forma de que la profesional sepa quién es, es que el propio estudiante pida conversar."),
+      q("¿El alumnado responde todos los días?", "Solo cuando el colegio lo programa. La profesional o la administración eligen, curso por curso, qué actividad se abre, qué días y en qué horario. Fuera de ese horario no aparece ninguna encuesta."),
+      q("¿Se puede chatear con la profesional?", "Sí, si ella activa el chat. Los mensajes solo los ve el personal de salud mental de la institución y no quedan en la bitácora de la administración. No reemplaza a una línea de emergencia."),
       q("¿PULSO hace diagnósticos?", "No. PULSO es una herramienta de detección temprana para el colegio. El GAD-7 orienta, no diagnostica. Cualquier evaluación clínica la hace un profesional en persona."),
       q("¿Qué pasa si un curso tiene pocas respuestas?", "Se muestra como protegido y no se calcula ningún promedio. El mínimo predeterminado es cinco, y cada institución puede subirlo."),
       q("¿Por qué el día de hoy no muestra un número?", "Porque si alguien mirara el promedio antes y después de que un estudiante responda, podría deducir su respuesta. Por eso el día en curso solo muestra un nivel, y los números aparecen al cerrar el día."),
@@ -151,9 +153,10 @@ function simulator() {
 
 function roleTabs() {
   const ROLES = {
-    estudiante: ["Estudiante", "Registra su día con una cara, responde el GAD-7 cada quincena y tiene a mano herramientas para calmarse.", [
+    estudiante: ["Estudiante", "Responde las actividades que su colegio abre y tiene un espacio propio con lecturas, juegos para calmarse y un chat con la profesional.", [
       "No ve datos de nadie más, ni siquiera los de su curso.",
-      "Si un registro sale bajo, se le ofrece respirar, conectarse con su entorno o pedir conversar.",
+      "Si un registro sale bajo, se le ofrece un juego para calmarse o escribirle a la profesional.",
+      "Fuera del horario programado no ve ninguna encuesta, solo sus recursos.",
       "Solo cuando pide ayuda, su usuario llega a la profesional.",
     ]],
     docente: ["Docente", "Ve el clima de los cursos que tiene asignados, para ajustar su clase en una semana difícil.", [
@@ -161,13 +164,16 @@ function roleTabs() {
       "No ve solicitudes de ayuda ni resultados del GAD-7.",
       "Los cursos con pocas respuestas aparecen como protegidos.",
     ]],
-    profesional: ["Profesional en salud mental", "Tiene el semáforo de toda la institución y atiende las solicitudes de conversación.", [
+    profesional: ["Profesional en salud mental", "Decide cuándo responde cada curso, tiene el semáforo de toda la institución y atiende por chat o en persona.", [
+      "Programa el registro de ánimo o el GAD-7 por curso, con fecha, días y horario, y personaliza la pregunta.",
       "Ve qué cursos están en atención o en alerta y cómo cambian semana a semana.",
+      "Activa o desactiva el chat y publica lecturas y recomendaciones para el alumnado.",
       "Gestiona cada solicitud: conversación, derivación externa y cierre.",
       "Cruza bienestar con asistencia y calcula la correlación de Pearson.",
     ]],
     admin: ["Administración", "Configura la institución y decide quién entra.", [
       "Crea cursos y sus códigos, aprueba al alumnado e invita al personal.",
+      "También puede programar actividades y publicar recursos.",
       "Restablece contraseñas, suspende cuentas y revisa la bitácora.",
       "Puede borrar todos los datos de la institución.",
     ]],

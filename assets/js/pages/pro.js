@@ -4,14 +4,17 @@ import { rpc, errMsg } from "../sb.js";
 import { lineChart, scatter, pearson, strength } from "../charts.js";
 import { panelHead } from "./app.js";
 import { courseDetail, kpi } from "./course.js";
+import { schedules, resources } from "./plan.js";
+import { proChat } from "./chat.js";
 
 export async function pro(root, ctx) {
   document.title = "Semáforo · PULSO";
   const box = h("div", { class: "mt" });
-  const t = tabs([["semaforo", "Semáforo"], ["tendencia", "Tendencia"], ["solicitudes", "Solicitudes"], ["asistencia", "Asistencia y correlación"]],
-    (k) => ({ semaforo, tendencia, solicitudes, asistencia: correlacion })[k](box), "semaforo");
+  const t = tabs([["semaforo", "Semáforo"], ["programacion", "Programación"], ["chat", "Chat"], ["solicitudes", "Solicitudes"],
+    ["recursos", "Recursos"], ["tendencia", "Tendencia"], ["asistencia", "Asistencia y correlación"]],
+    (k) => ({ semaforo, tendencia, solicitudes, asistencia: correlacion, programacion: schedules, recursos: resources, chat: proChat })[k](box), "semaforo");
   mount(root, h("div", { class: "view" },
-    panelHead(ctx, "Semáforo de la institución", "Qué cursos necesitan atención, cómo cambian y quién pidió conversar."),
+    panelHead(ctx, "Semáforo de la institución", "Qué cursos necesitan atención, cuándo responde cada curso y quién pidió conversar."),
     t.el, box));
   semaforo(box);
 }
@@ -52,7 +55,9 @@ export async function semaforo(box) {
       kpi(counts.alerta, "Cursos en alerta", "Promedio de 7 días menor a 2,7"),
       kpi(counts.atencion, "Cursos en atención", "Entre 2,7 y 3,5"),
       kpi(o.pending_requests, "Solicitudes nuevas", "Esperan tu respuesta"),
-      kpi(gadFlag, "Cursos con señal GAD-7", "25 % o más con puntaje de 10 o más")),
+      o.unread_chats !== null && o.unread_chats !== undefined ? kpi(o.unread_chats, "Chats sin leer", "Conversaciones con mensajes nuevos") : null,
+      kpi(gadFlag, "Cursos con señal GAD-7", "Últimos 14 días: 25 % o más con 10 o más"),
+      kpi(o.courses.filter((c) => c.scheduled_today).length + " de " + o.courses.length, "Cursos con actividad hoy", "Según la programación")),
     h("div", { class: "card" },
       h("div", { class: "row between" }, h("h3", null, "Cursos, últimos siete días cerrados"), h("span", { class: "tiny muted" }, `Mínimo para mostrar: ${o.k} respuestas`)),
       o.courses.length ? h("div", { class: "mt" }, list) : h("div", { class: "empty mt" }, "Aún no hay cursos. La administración debe crearlos."),

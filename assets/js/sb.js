@@ -51,6 +51,16 @@ const MSG = {
   datos_invalidos: "Los datos no tienen el formato esperado.",
   institucion_no_encontrada: "No se encontró la institución.",
   sin_configurar: "La plataforma aún no está conectada a su base de datos.",
+  fuera_de_horario: "Esta actividad ya no está abierta. Revisa los próximos horarios.",
+  programacion_no_encontrada: "No se encontró esa programación.",
+  limite_programaciones: "Se alcanzó el límite de programaciones. Borra las que ya no uses.",
+  enlace_invalido: "El enlace debe empezar con https://",
+  recurso_no_encontrado: "No se encontró el recurso.",
+  limite_recursos: "Se alcanzó el límite de recursos publicados.",
+  chat_inactivo: "El chat no está activo en este momento.",
+  mensaje_vacio: "Escribe un mensaje.",
+  limite_mensajes: "Enviaste muchos mensajes seguidos. Espera un rato; la profesional ya los tiene.",
+  conversacion_no_encontrada: "No se encontró la conversación o ya está cerrada.",
 };
 
 export function errMsg(e) {

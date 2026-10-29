@@ -4,6 +4,7 @@ import { rpc, errMsg } from "../sb.js";
 import { panelHead } from "./app.js";
 import { kpi } from "./course.js";
 import { semaforo, tendencia, correlacion } from "./pro.js";
+import { schedules, resources } from "./plan.js";
 
 const ROLE = { estudiante: "Estudiante", docente: "Docente", profesional: "Profesional", admin: "Administración" };
 const STATUS = { activa: ["Activa", "p-dark"], pendiente: ["Pendiente", "p-line"], suspendida: ["Suspendida", "p-mid"], rechazada: ["Rechazada", "p-soft"] };
@@ -15,15 +16,18 @@ const ACTION = {
   curso_creado: "Creó un curso", codigo_curso_rotar: "Cambió el código de un curso", codigo_curso_abrir: "Abrió la inscripción de un curso",
   codigo_curso_cerrar: "Cerró la inscripción de un curso", invitacion_creada: "Creó una invitación", docente_asignado: "Asignó un curso a un docente",
   docente_retirado: "Retiró un curso a un docente", ajustes_actualizados: "Cambió los ajustes", asistencia_cargada: "Cargó asistencia",
-  contrasena_restablecida: "Restableció una contraseña", datos_borrados: "Borró todos los datos", solicitud_actualizada: "Actualizó una solicitud",
+  contrasena_restablecida: "Restableció una contraseña", programacion_creada: "Programó una actividad", programacion_editada: "Editó una programación",
+  programacion_pausar: "Pausó una programación", programacion_activar: "Activó una programación", programacion_borrar: "Borró una programación",
+  recurso_guardado: "Publicó o editó un recurso", recurso_borrado: "Borró un recurso", chat_activado: "Activó el chat", chat_desactivado: "Desactivó el chat", datos_borrados: "Borró todos los datos", solicitud_actualizada: "Actualizó una solicitud",
 };
 const origin = () => location.origin;
 
 export async function admin(root, ctx) {
   document.title = "Administración · PULSO";
   const box = h("div", { class: "mt" });
-  const views = { resumen, cursos, miembros, invitaciones, semaforo, tendencia, asistencia: correlacion, bitacora, ajustes };
+  const views = { resumen, cursos, miembros, invitaciones, programacion: schedules, recursos: resources, semaforo, tendencia, asistencia: correlacion, bitacora, ajustes };
   const t = tabs([["resumen", "Resumen"], ["cursos", "Cursos"], ["miembros", "Miembros"], ["invitaciones", "Invitaciones"],
+    ["programacion", "Programación"], ["recursos", "Recursos"],
     ["semaforo", "Semáforo"], ["tendencia", "Tendencia"], ["asistencia", "Asistencia"], ["bitacora", "Bitácora"], ["ajustes", "Ajustes"]],
   (k) => views[k](box, ctx, go), "resumen");
   function go(k) { t.set(k); }
@@ -37,13 +41,15 @@ export async function admin(root, ctx) {
 async function resumen(box, ctx, go) {
   mount(box, loading());
   let o;
-  try { o = await rpc("admin_overview"); } catch (e) { mount(box, h("p", { class: "err" }, errMsg(e))); return; }
+  let nSched = 0;
+  try { [o, nSched] = await Promise.all([rpc("admin_overview"), rpc("sched_list").then((l) => l.length)]); } catch (e) { mount(box, h("p", { class: "err" }, errMsg(e))); return; }
   const c = o.counts;
   const steps = [
     [true, "Verificación en dos pasos activada", null],
     [o.courses.length > 0, "Crear los cursos", "cursos"],
     [c.staff > 1, "Invitar a la profesional en salud mental y a los docentes", "invitaciones"],
     [c.students_active > 0, "Compartir los códigos de curso y aprobar al alumnado", "miembros"],
+    [nSched > 0, "Programar cuándo responde cada curso (o pedírselo a la profesional)", "programacion"],
   ];
   mount(box, h("div", { class: "stack" },
     h("div", { class: "kpis" },
