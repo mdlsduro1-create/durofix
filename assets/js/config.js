@@ -3,8 +3,8 @@
 // porque la base de datos niega todo y solo expone funciones que validan rol, estado y MFA.
 // La clave "service_role" NUNCA debe aparecer en este proyecto.
 export const CONFIG = Object.freeze({
-  SUPABASE_URL: "__SUPABASE_URL__",
-  SUPABASE_ANON_KEY: "__SUPABASE_ANON_KEY__",
+  SUPABASE_URL: "https://lzrljlzghqzipagawhkt.supabase.co",
+  SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx6cmxqbHpnaHF6aXBhZ2F3aGt0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMyMzc5MjcsImV4cCI6MjEwODgxMzkyN30.w1OKjHBpv-8NBz5AtBGwmXVOya_Y-NBboj-E9JvnUSU",
   // Dominio interno para las cuentas del alumnado (no recibe correos).
   // usuario@codigo-institucion.<este dominio>
   STUDENT_EMAIL_DOMAIN: "alumnos.pulso.invalid",
