@@ -1,7 +1,7 @@
 {
   "rewrites": [
     {
-      "source": "/:path((?!assets/).*)",
+      "source": "/(.*)",
       "destination": "/index.html"
     }
   ],
