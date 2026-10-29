@@ -11,6 +11,8 @@ Este documento describe los controles de seguridad, los riesgos que quedan y qu�
 | Solicitud de ayuda | Sensible, identificable | `help_requests` | Solo la profesional en salud mental |
 | Usuario del estudiante | Personal (seudónimo) | `profiles` | Administración y profesional (en solicitudes) |
 | Correo, nombre y rol del personal | Personal | `auth.users`, `profiles` | Administración de la institución, propietario |
+| Mensajes del chat | Sensible, identificable | `chat_threads`, `chat_messages` | Solo la profesional en salud mental y el propio estudiante |
+| Programación de actividades y recursos | Interno | `schedules`, `resources` | Administración y profesional (el alumnado ve solo lo que le corresponde) |
 | Asistencia semanal por curso | Interno | `attendance` | Administración y profesional |
 | Bitácora | Interno | `audit_log` | Administración de la institución |
 
@@ -40,6 +42,13 @@ No se guardan nombres reales del alumnado, fechas de nacimiento, documentos de i
 * El estudiante nunca recibe su puntaje GAD-7, solo una sugerencia de conversar si corresponde.
 * Cifrado en tránsito (TLS, HSTS) y en reposo (Supabase).
 * Borrado total de datos de una institución por su administración, registrado en la bitácora.
+
+### Programación, chat y recursos
+* Las actividades solo se aceptan dentro de una ventana programada: la verificación ocurre en la base de datos, no en la pantalla.
+* El GAD-7 se agrega por los últimos 14 días cerrados, con el mínimo k, para que una respuesta nueva no pueda deducirse comparando lecturas.
+* El chat es opcional y lo activa la profesional. Ni la administración ni los docentes pueden leerlo, y su contenido no entra en la bitácora. Límite de 30 mensajes por hora por estudiante.
+* Los enlaces publicados solo se aceptan con `https://` y se abren en una pestaña aislada (`noopener noreferrer`).
+* El borrado total de datos de una institución incluye las conversaciones.
 
 ### Navegador
 * Política de seguridad de contenido sin `unsafe-inline` ni `unsafe-eval`; solo scripts, estilos y fuentes del propio dominio.

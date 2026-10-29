@@ -6,6 +6,13 @@ Plataforma institucional para la detección temprana de la ansiedad escolar. Pro
 
 Cada estudiante registra cómo se siente en menos de un minuto. La profesional en salud mental del colegio ve un semáforo por curso y recibe las solicitudes de conversación. Nadie, ni siquiera ella, puede ver la respuesta de una persona en particular.
 
+## Funciones principales
+
+* **Programación por curso**: la administración o la profesional decide qué actividad se abre (registro de ánimo o GAD-7), para qué cursos, qué días y en qué horario, y puede personalizar la pregunta. Fuera de ese horario el alumnado no puede responder: la base de datos lo rechaza.
+* **Espacio del estudiante**: actividades abiertas y próximas, lecturas breves, recomendaciones publicadas por su colegio, juegos para calmarse (respiración, burbujas, memoria, nubes de pensamiento, técnica 5, 4, 3, 2, 1) y conversación.
+* **Chat con la profesional**: solo funciona si ella lo activa. Los mensajes los ve únicamente el personal de salud mental de la institución.
+* **Recursos**: la administración o la profesional publica lecturas, recomendaciones o enlaces seguros, para todos los cursos o para uno.
+
 ## Arquitectura
 
 * **Interfaz**: página estática (HTML, CSS y módulos de JavaScript sin compilación) publicada en Vercel. No usa estilos ni scripts en línea, de modo que la política de seguridad de contenido puede ser estricta.
@@ -31,10 +38,10 @@ vercel.json              rutas y cabeceras de seguridad
 | Rol | Cómo entra | Qué ve |
 |---|---|---|
 | Propietario de la plataforma | `/plataforma/registro`, se activa desde el editor SQL | Solicitudes de instituciones, aprobar, rechazar, suspender |
-| Administración | Registra la institución, queda pendiente hasta la aprobación | Cursos, códigos, cuentas, invitaciones, semáforo, asistencia, bitácora, ajustes, borrado |
-| Profesional en salud mental | Invitación de un solo uso | Semáforo, tendencia, solicitudes de ayuda, correlación con asistencia |
+| Administración | Registra la institución, queda pendiente hasta la aprobación | Cursos, códigos, cuentas, invitaciones, programación, recursos, semáforo, asistencia, bitácora, ajustes, borrado |
+| Profesional en salud mental | Invitación de un solo uso | Semáforo, programación, chat, solicitudes de ayuda, recursos, tendencia, correlación con asistencia |
 | Docente | Invitación de un solo uso | Clima de los cursos asignados |
-| Estudiante | Código de curso y aprobación de la administración | Su registro diario, GAD-7 quincenal, herramientas, pedido de ayuda |
+| Estudiante | Código de curso y aprobación de la administración | Actividades cuando están abiertas, lecturas, juegos, chat o pedido de ayuda |
 
 Administración, profesional y propietario usan verificación en dos pasos obligatoria.
 
@@ -49,7 +56,7 @@ Administración, profesional y propietario usan verificación en dos pasos oblig
 
 ## Despliegue
 
-1. **Supabase**: crear el proyecto (región São Paulo), ejecutar `supabase/migrations/0001_pulso.sql` en el editor SQL.
+1. **Supabase**: crear el proyecto (región São Paulo), ejecutar en el editor SQL, en orden, `0001_pulso.sql` y `0002_programacion_bienestar_chat.sql`.
 2. **Auth** (Authentication, Sign In / Providers, Email): desactivar *Confirm email* (las cuentas del alumnado usan un correo interno que no recibe mensajes; la aprobación la hace la administración). Longitud mínima de contraseña 10, exigir letras y números. Activar TOTP en *Multi Factor*.
 3. **API** (Data API): confirmar que el esquema `private` NO esté entre los esquemas expuestos.
 4. **config.js**: colocar la URL del proyecto y la clave `anon` (pública por diseño). La clave `service_role` nunca se usa en este proyecto.
