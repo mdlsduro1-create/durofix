@@ -1,0 +1,1494 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#E9E9E7">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Léxico">
+<meta name="description" content="Léxico: una palabra culta y útil cada día, con lecciones cortas y repaso espaciado.">
+<title>Léxico</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,700;0,900;1,700;1,900&display=swap" rel="stylesheet">
+<style>
+/* =========================================================
+   LÉXICO · collage editorial
+   Papel gris, tinta negra, un solo acento: amarillo marcador
+   ========================================================= */
+:root{
+  --paper:#E9E9E7; --paper2:#F4F4F1; --paper3:#DEDEDB;
+  --ink:#111111; --ink2:#2a2a2a; --mute:#5f5f59; --line:rgba(17,17,17,.88);
+  --y:#FFE600;
+  --serif:'Playfair Display', Georgia, 'Times New Roman', serif;
+  --sans:'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --r:16px; --gut:16px;
+  --safe-b:env(safe-area-inset-bottom, 0px);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{background:var(--paper);overflow-x:hidden}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-weight:600;font-size:16px;line-height:1.45;min-height:100vh;min-height:100dvh;overflow-x:hidden;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;touch-action:manipulation}
+textarea{font:inherit}
+[hidden]{display:none!important}
+
+/* Grano de papel + viñeta */
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:200;background-image:var(--grain);background-size:220px 220px;opacity:.55;mix-blend-mode:multiply}
+body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:199;background:radial-gradient(130% 95% at 50% 38%,transparent 52%,rgba(0,0,0,.13) 100%)}
+
+/* ---------- Tipografía ---------- */
+.serif{font-family:var(--serif);font-style:italic;font-weight:900;letter-spacing:-.01em}
+.kicker{font-family:var(--sans);font-weight:800;font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;color:var(--ink)}
+.mute{color:var(--mute)}
+
+/* ---------- Resaltador ---------- */
+.hl{position:relative;z-index:0;isolation:isolate;white-space:nowrap}
+.hl::before{content:"";position:absolute;inset:.2em -.2em -.04em -.26em;background:var(--hlA) center/100% 100% no-repeat;z-index:-1;clip-path:inset(0 100% 0 0);transition:clip-path .6s cubic-bezier(.65,.05,.25,1)}
+.hl.b::before{background-image:var(--hlB);inset:.26em -.3em 0 -.14em}
+.hl.c::before{background-image:var(--hlC);inset:.14em -.16em .06em -.3em}
+.hl.on::before{clip-path:inset(0 0 0 0)}
+.hl.wrap{white-space:normal}
+
+/* ---------- Lápiz ---------- */
+.pencil{fill:none;stroke:#1d1d1d;stroke-width:1.35;stroke-linecap:round;stroke-linejoin:round;filter:url(#pencil);vector-effect:non-scaling-stroke}
+.draw{stroke-dasharray:1;stroke-dashoffset:1;animation:draw 1.1s .15s cubic-bezier(.6,.1,.3,1) forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+
+/* ---------- App shell ---------- */
+#app{max-width:520px;margin:0 auto;min-height:100dvh;overflow-x:clip;padding:0 var(--gut) calc(92px + var(--safe-b));position:relative}
+.top{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:10px;padding:12px 0 10px;background:linear-gradient(var(--paper) 78%,rgba(233,233,231,0))}
+.brand{font-family:var(--serif);font-style:italic;font-weight:900;font-size:1.65rem;line-height:1;margin-right:auto;letter-spacing:-.02em}
+.brand span{font-family:var(--sans);font-style:normal;font-weight:800;font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;margin-left:6px;vertical-align:middle}
+.stat{display:inline-flex;align-items:center;gap:5px;font-weight:800;font-size:.95rem;padding:6px 10px;border:2px solid var(--ink);border-radius:999px;background:var(--paper2);min-height:36px}
+.stat svg{width:18px;height:18px}
+.stat.off{opacity:.45}
+
+.tabs{position:fixed;left:0;right:0;bottom:0;z-index:30;display:flex;justify-content:center;padding:8px var(--gut) calc(8px + var(--safe-b));background:var(--paper);border-top:2px solid var(--ink)}
+.tabs-in{display:flex;width:100%;max-width:520px;gap:6px}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 4px;border-radius:12px;font-weight:800;font-size:.74rem;letter-spacing:.04em;min-height:56px;position:relative}
+.tab svg{width:26px;height:26px}
+.tab.on{background:var(--ink);color:var(--paper)}
+.tab.on svg *{stroke:var(--paper)}
+.tab.on .tdot{fill:var(--y)!important;stroke:none!important}
+
+.view{animation:fadeUp .35s ease both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* ---------- Botones ---------- */
+.btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:60px;padding:14px 20px;border-radius:14px;border:2.5px solid var(--ink);font-weight:800;font-size:1.06rem;letter-spacing:.01em;background:var(--paper2);transition:transform .12s ease, box-shadow .12s ease, background .2s;box-shadow:0 4px 0 var(--ink);position:relative}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
+.btn.primary{background:var(--ink);color:#fff}
+.btn.primary .arr{color:var(--y)}
+.btn.yellow{background:var(--y);color:var(--ink)}
+.btn[disabled]{opacity:.38;pointer-events:none;box-shadow:0 4px 0 rgba(0,0,0,.3)}
+.btn.ghost{box-shadow:none;border-style:dashed;background:transparent}
+.btn + .btn{margin-top:14px}
+.link{font-weight:800;text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:2px;padding:10px 4px}
+
+/* ---------- Collage / hero ---------- */
+.hero{position:relative;margin-top:6px}
+.hero-date{display:flex;justify-content:space-between;align-items:baseline;gap:10px;border-bottom:2px solid var(--ink);padding-bottom:6px}
+.hero-date .kicker:last-child{color:var(--mute)}
+.hero-word{position:relative;z-index:3;margin-top:22px;display:flex;align-items:flex-end;flex-wrap:wrap;gap:4px 18px}
+.hero-word h1{font-family:var(--serif);font-style:italic;font-weight:900;font-size:clamp(3.1rem,16vw,5.4rem);line-height:.95;letter-spacing:-.025em}
+.pos{position:relative;font-weight:900;font-size:1.25rem;padding:10px 18px;margin-bottom:8px}
+.pos svg{position:absolute;inset:-6px -14px -8px -12px;width:calc(100% + 26px);height:calc(100% + 14px);overflow:visible}
+.hero-art{position:relative;height:210px;margin:-8px -8px 0;pointer-events:none}
+.hero-art > *{position:absolute}
+.hero-def{position:relative;z-index:3;font-size:1.22rem;font-weight:700;line-height:1.35;max-width:30ch;margin:4px 0 22px}
+.hero-def em{font-family:var(--serif);font-weight:900}
+.teaser{margin-top:18px;padding:16px;border:2px dashed var(--ink);border-radius:var(--r);display:flex;gap:14px;align-items:center}
+.teaser b{font-family:var(--serif);font-style:italic;font-weight:900;font-size:1.5rem;letter-spacing:.12em}
+
+/* Tarjetas */
+.card{background:var(--paper2);border:2px solid var(--ink);border-radius:var(--r);padding:16px;position:relative}
+.card + .card,.blk{margin-top:16px}
+.row{display:flex;align-items:center;gap:12px}
+.lvname{font-family:var(--serif);font-style:italic;font-weight:900;font-size:1.7rem;line-height:1}
+.bar{height:14px;border:2px solid var(--ink);border-radius:99px;overflow:hidden;background:var(--paper);margin-top:10px}
+.bar i{display:block;height:100%;background:var(--y);border-right:2px solid var(--ink);transition:width .8s cubic-bezier(.4,0,.2,1)}
+.bar i.full{border-right:0}
+.week{display:flex;justify-content:space-between;margin-top:12px}
+.wd{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:.72rem;font-weight:800}
+.wd i{width:30px;height:30px;border-radius:50%;border:2px solid var(--ink);display:block}
+.wd.on i{background:var(--y)}
+.wd.today i{box-shadow:0 0 0 3px var(--paper2),0 0 0 5px var(--ink)}
+.big-n{font-family:var(--serif);font-style:italic;font-weight:900;font-size:2.3rem;line-height:1}
+
+/* ---------- Mi léxico ---------- */
+.ph{margin:10px 0 14px}
+.ph h1{font-family:var(--serif);font-style:italic;font-weight:900;font-size:clamp(2.6rem,13vw,3.6rem);line-height:1;letter-spacing:-.02em}
+.ph p{margin-top:8px;color:var(--mute);font-weight:700}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{padding:9px 14px;border:2px solid var(--ink);border-radius:999px;font-weight:800;font-size:.88rem;min-height:40px;background:var(--paper2)}
+.chip.on{background:var(--ink);color:#fff}
+.search{width:100%;margin:12px 0 4px;padding:14px 16px;min-height:52px;border:2px solid var(--ink);border-radius:14px;background:var(--paper2);font-weight:700;font-size:1rem;color:var(--ink)}
+.search:focus,textarea:focus{outline:3px solid var(--y);outline-offset:2px}
+.wlist{display:flex;flex-direction:column;gap:12px;margin-top:14px}
+.witem{display:block;width:100%;text-align:left;padding:14px 16px;border:2px solid var(--ink);border-radius:var(--r);background:var(--paper2);transition:transform .12s}
+.witem:active{transform:scale(.985)}
+.witem .w{font-family:var(--serif);font-style:italic;font-weight:900;font-size:1.75rem;line-height:1.1}
+.witem .d{font-weight:600;font-size:.92rem;color:var(--ink2);margin-top:4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.segs{display:flex;gap:4px;margin-top:10px}
+.segs i{flex:1;height:8px;border:1.5px solid var(--ink);border-radius:2px}
+.segs i.f{background:var(--ink)}
+.segs i.c{background:var(--y)}
+.wmeta{display:flex;justify-content:space-between;gap:8px;font-size:.78rem;font-weight:800;margin-top:6px;color:var(--mute)}
+.badge{display:inline-block;font-size:.66rem;font-weight:900;letter-spacing:.1em;text-transform:uppercase;padding:3px 7px;border:1.5px solid var(--ink);border-radius:5px;vertical-align:middle;margin-left:6px;font-family:var(--sans);font-style:normal}
+.badge.y{background:var(--y)}
+.badge.k{background:var(--ink);color:#fff}
+.locked{border-style:dashed;opacity:.7;text-align:center;padding:22px 16px}
+.locked .w{letter-spacing:.2em}
+.empty{text-align:center;padding:30px 12px}
+
+/* ---------- Ficha ---------- */
+.ficha{position:relative}
+.f-word{font-family:var(--serif);font-style:italic;font-weight:900;font-size:clamp(2.8rem,14vw,4.4rem);line-height:1;letter-spacing:-.02em;margin:10px 0 6px}
+.f-def{font-size:1.2rem;font-weight:700;line-height:1.38;margin:10px 0 4px}
+.f-sec{margin-top:22px;padding-top:14px;border-top:2px solid var(--ink)}
+.f-sec h4{font-family:var(--sans);font-weight:900;font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;margin-bottom:10px}
+.ej{display:flex;gap:10px;align-items:flex-start;margin-top:10px}
+.ej p{font-weight:600;font-size:1.02rem}
+.tag{flex:none;font-size:.66rem;font-weight:900;letter-spacing:.08em;text-transform:uppercase;padding:4px 7px;border:1.5px solid var(--ink);border-radius:6px;margin-top:2px;min-width:68px;text-align:center}
+.tag.k{background:var(--ink);color:#fff}
+mark.u{background:none;color:inherit;font-weight:900;box-shadow:inset 0 -.42em 0 var(--y)}
+.evd{font-size:1.05rem;font-weight:700}
+.evd s{text-decoration-thickness:2px;color:var(--mute)}
+.lbl{font-size:.7rem;font-weight:900;letter-spacing:.12em;text-transform:uppercase;width:100%;margin-top:12px}
+.chip.s{background:var(--paper2);font-size:.86rem;padding:7px 12px;min-height:0}
+.chip.a{background:transparent;border-style:dashed;font-size:.86rem;padding:7px 12px;min-height:0}
+.ety-t{font-family:var(--serif);font-style:italic;font-weight:700;font-size:1.3rem;line-height:1.35}
+.quote{position:relative;padding:22px 18px 18px;margin-top:22px;background:var(--ink);color:#f2f2ee;border-radius:4px;transform:rotate(-.6deg)}
+.quote h4{color:var(--y);margin-bottom:8px;font-weight:900;font-size:.72rem;letter-spacing:.16em;text-transform:uppercase}
+.quote blockquote{font-family:var(--serif);font-style:italic;font-weight:700;font-size:1.22rem;line-height:1.4}
+.quote cite{display:block;margin-top:12px;font-style:normal;font-weight:800;font-size:.86rem}
+.quote cite span{font-weight:600;opacity:.8}
+.quote .nota{margin-top:10px;font-size:.88rem;font-weight:600;opacity:.85}
+.quote .qm{position:absolute;top:-24px;left:10px;font-family:var(--serif);font-weight:900;font-size:4.6rem;line-height:1;color:var(--y)}
+.myf{margin-top:8px;padding:10px 12px;border-left:4px solid var(--y);background:var(--paper2);font-weight:600;border-radius:0 8px 8px 0}
+
+/* ---------- Modal / hoja ---------- */
+.modal{position:fixed;inset:0;z-index:60;display:flex;align-items:flex-end;justify-content:center;background:rgba(17,17,17,.42);animation:fade .2s}
+.modal-in{width:100%;max-width:560px;max-height:92dvh;overflow-y:auto;overscroll-behavior:contain;background:var(--paper);border:2.5px solid var(--ink);border-bottom:0;border-radius:22px 22px 0 0;padding:14px var(--gut) calc(28px + var(--safe-b));animation:up .32s cubic-bezier(.2,.9,.3,1)}
+.modal-in.small{text-align:center;padding-top:26px}
+.grab{width:46px;height:5px;border-radius:9px;background:var(--ink);margin:0 auto 10px;opacity:.5}
+.mclose{position:sticky;top:0;margin-left:auto;display:flex;width:44px;height:44px;align-items:center;justify-content:center;border:2px solid var(--ink);border-radius:50%;background:var(--paper2);z-index:2}
+@keyframes up{from{transform:translateY(100%)}to{transform:none}}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+
+/* ---------- Lección ---------- */
+#lesson{position:fixed;inset:0;z-index:40;background:var(--paper);display:flex;flex-direction:column;overflow:hidden}
+.l-top{display:flex;align-items:center;gap:12px;padding:12px var(--gut) 8px;max-width:560px;width:100%;margin:0 auto}
+.xbtn{width:44px;height:44px;flex:none;display:flex;align-items:center;justify-content:center;border-radius:50%}
+.xbtn svg{width:26px;height:26px}
+.pbar{flex:1;height:18px;border:2.5px solid var(--ink);border-radius:99px;background:var(--paper2);overflow:hidden;position:relative}
+.pbar i{display:block;height:100%;background:var(--y);border-right:2.5px solid var(--ink);transition:width .5s cubic-bezier(.4,0,.2,1)}
+.pbar i[style*="width: 0"],.pbar i[style*="width:0"]{border-right:0}
+.lives{display:flex;align-items:center;gap:4px;font-weight:900;font-size:1.05rem}
+.lives svg{width:22px;height:22px}
+.lives.hit{animation:hit .5s}
+@keyframes hit{30%{transform:scale(1.35)}60%{transform:scale(.9)}}
+.l-body{flex:1;overflow-y:auto;padding:12px var(--gut) 24px;max-width:560px;width:100%;margin:0 auto;-webkit-overflow-scrolling:touch}
+.l-foot{padding:12px var(--gut) calc(16px + var(--safe-b));max-width:560px;width:100%;margin:0 auto;border-top:2px solid var(--ink);background:var(--paper)}
+.ex{animation:exIn .38s cubic-bezier(.2,.8,.3,1) both}
+@keyframes exIn{from{opacity:0;transform:translateX(26px)}to{opacity:1;transform:none}}
+.ex-k{font-weight:900;font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;display:flex;align-items:center;gap:8px}
+.ex-k i{display:inline-block;width:22px;height:2px;background:var(--ink)}
+.ex-t{font-family:var(--serif);font-style:italic;font-weight:900;font-size:clamp(1.9rem,8.5vw,2.5rem);line-height:1.08;margin:10px 0 6px;letter-spacing:-.01em}
+.ex-s{font-weight:700;color:var(--mute);margin-bottom:16px}
+.scrap{background:var(--paper2);border:2px solid var(--ink);border-radius:6px;padding:18px 16px;font-size:1.22rem;font-weight:700;line-height:1.45;margin:14px 0 18px;position:relative;transform:rotate(-.5deg)}
+.scrap.r{transform:rotate(.6deg)}
+.scrap::after{content:"";position:absolute;top:-10px;left:50%;width:70px;height:20px;margin-left:-35px;background:rgba(255,230,0,.75);transform:rotate(-3deg);border-left:1px dashed rgba(0,0,0,.15);border-right:1px dashed rgba(0,0,0,.15)}
+.scrap .w{font-family:var(--serif);font-style:italic;font-weight:900}
+.blank{display:inline-block;min-width:4.5em;border-bottom:3px solid var(--ink);text-align:center;font-family:var(--serif);font-style:italic;font-weight:900;padding:0 4px;transition:background .2s}
+.blank.fill{animation:pop .3s}
+.circ{position:relative;display:inline-block;padding:0 3px}
+.circ svg{position:absolute;inset:-9px -12px -9px -12px;width:calc(100% + 24px);height:calc(100% + 18px);overflow:visible;pointer-events:none}
+.opts{display:flex;flex-direction:column;gap:12px}
+.opts.grid{display:grid;grid-template-columns:1fr 1fr}
+.opt{position:relative;isolation:isolate;display:flex;align-items:center;gap:12px;width:100%;min-height:62px;padding:14px 16px;text-align:left;border:2.5px solid var(--ink);border-radius:14px;background:var(--paper2);box-shadow:0 4px 0 var(--ink);font-weight:700;font-size:1rem;line-height:1.3;transition:transform .12s, box-shadow .12s, background .15s}
+.opt::before{content:"";position:absolute;inset:4px;z-index:-1;background:var(--hlB) center/100% 100% no-repeat;clip-path:inset(0 100% 0 0);transition:clip-path .45s cubic-bezier(.65,.05,.25,1)}
+.opt:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
+.opt.sel{transform:translateY(2px);box-shadow:0 2px 0 var(--ink);background:#fff;outline:3px solid var(--ink);outline-offset:-6px}
+.opt.ok{background:var(--paper2);outline:0}
+.opt.ok::before{clip-path:inset(0 0 0 0)}
+.opt.ko{animation:shake .45s;opacity:.6}
+.opt.ko .opt-t{text-decoration:line-through;text-decoration-thickness:2px}
+.opt.dim{opacity:.45}
+.opt-n{flex:none;width:30px;height:30px;border:2px solid var(--ink);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:.8rem;background:var(--paper)}
+.opt.word{justify-content:center;text-align:center;font-family:var(--serif);font-style:italic;font-weight:900;font-size:1.45rem;min-height:66px}
+.opt .mk{position:absolute;right:10px;top:50%;width:34px;height:34px;margin-top:-17px;overflow:visible}
+.opt .mk path{stroke-width:3.2}
+.vf{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:6px}
+.vf .opt{justify-content:center;font-size:1.15rem;font-weight:900;min-height:88px;flex-direction:column;gap:6px}
+.vf .opt svg.ic{width:34px;height:34px}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-9px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(4px)}}
+@keyframes pop{50%{transform:scale(1.12)}}
+.pairs{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.pairs .col{display:flex;flex-direction:column;gap:12px}
+.pair{min-height:60px;justify-content:center;text-align:center;font-size:1rem;padding:10px 8px}
+.pair.wd{font-family:var(--serif);font-style:italic;font-weight:900;font-size:1.25rem}
+.pair.done{pointer-events:none;box-shadow:none;transform:translateY(3px);border-color:rgba(17,17,17,.35);color:rgba(17,17,17,.45)}
+.pair.done::before{clip-path:inset(0 0 0 0);opacity:.55}
+.pair.flash{animation:pop .35s}
+textarea.write{width:100%;min-height:130px;padding:16px;border:2.5px solid var(--ink);border-radius:14px;background:var(--paper2);font-weight:600;font-size:1.1rem;line-height:1.45;resize:vertical;color:var(--ink)}
+.hint{font-size:.9rem;font-weight:700;color:var(--mute);margin-top:8px}
+.selfev{display:flex;flex-direction:column;gap:12px;margin-top:6px}
+.selfev .opt{justify-content:flex-start}
+.selfev .em{font-family:var(--serif);font-style:italic;font-weight:900;font-size:1.25rem;width:30px;text-align:center}
+.warn{border:2px dashed var(--ink);border-radius:12px;padding:12px 14px;font-weight:700;margin:10px 0}
+
+/* Hoja de feedback */
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:45;transform:translateY(105%);transition:transform .34s cubic-bezier(.2,.9,.3,1)}
+.sheet.show{transform:none}
+.sheet-in{max-width:560px;margin:0 auto;padding:20px var(--gut) calc(18px + var(--safe-b));border:2.5px solid var(--ink);border-bottom:0;border-radius:22px 22px 0 0;position:relative;overflow:hidden}
+.sheet.ok .sheet-in{background:var(--y)}
+.sheet.ko .sheet-in{background:var(--ink);color:#f3f3ef}
+.sheet h3{font-family:var(--serif);font-style:italic;font-weight:900;font-size:2.1rem;line-height:1;display:flex;align-items:center;gap:10px}
+.sheet h3 .xp{font-family:var(--sans);font-style:normal;font-size:.9rem;font-weight:900;padding:4px 9px;border:2px solid currentColor;border-radius:99px;margin-left:auto}
+.sheet p{margin:10px 0 16px;font-weight:700;font-size:1.04rem;line-height:1.4}
+.sheet p b{font-weight:900}
+.sheet.ko .btn{background:var(--y);color:var(--ink);border-color:var(--y);box-shadow:0 4px 0 #8a7d00}
+.sheet.ok .btn{background:var(--ink);color:#fff}
+
+/* Intro / celebración / fin */
+.center{text-align:center}
+.celeb{position:relative;min-height:100%;display:flex;flex-direction:column;justify-content:center;padding:10px 0 20px}
+.celeb h1{font-family:var(--serif);font-style:italic;font-weight:900;font-size:clamp(3.4rem,18vw,5.6rem);line-height:.95;letter-spacing:-.03em;position:relative;display:inline-block}
+.celeb .sub{font-weight:700;font-size:1.1rem;margin-top:12px}
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:26px 0 14px}
+.tile{border:2.5px solid var(--ink);border-radius:14px;padding:12px 6px;background:var(--paper2);text-align:center;animation:fadeUp .5s both}
+.tile:nth-child(2){animation-delay:.12s}.tile:nth-child(3){animation-delay:.24s}
+.tile b{display:block;font-family:var(--serif);font-style:italic;font-weight:900;font-size:1.9rem;line-height:1.1}
+.tile span{font-size:.68rem;font-weight:900;letter-spacing:.12em;text-transform:uppercase}
+.tile.y{background:var(--y)}
+.lvup{margin:6px 0 14px;padding:14px;border:2.5px solid var(--ink);border-radius:14px;background:var(--ink);color:#fff;animation:fadeUp .5s .4s both}
+.lvup b{font-family:var(--serif);font-style:italic;font-weight:900;font-size:1.5rem;color:var(--y)}
+.learned{margin-top:4px;font-weight:700}
+.learned .serif{font-size:1.6rem}
+.confetti{position:fixed;inset:0;pointer-events:none;z-index:50;overflow:hidden}
+.confetti i{position:absolute;top:-40px;display:block;animation:fall linear forwards}
+@keyframes fall{to{transform:translate3d(var(--dx),110vh,0) rotate(var(--rot))}}
+.celeb-art{position:relative;height:150px;margin:0 auto 8px;width:100%;max-width:340px;pointer-events:none}
+.celeb-art > *{position:absolute}
+
+/* Perfil */
+.ladder{display:flex;flex-direction:column;gap:10px;margin-top:6px}
+.rung{display:flex;gap:14px;align-items:center;padding:12px 14px;border:2px solid var(--ink);border-radius:14px;background:var(--paper2)}
+.rung .n{width:36px;height:36px;flex:none;border-radius:50%;border:2px solid var(--ink);display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-style:italic;font-weight:900;font-size:1.1rem}
+.rung h3{font-family:var(--serif);font-style:italic;font-weight:900;font-size:1.35rem;line-height:1.1}
+.rung p{font-size:.86rem;font-weight:600;color:var(--ink2)}
+.rung.cur{background:var(--y)}
+.rung.cur .n{background:var(--ink);color:var(--y)}
+.rung.lock{opacity:.5;border-style:dashed;background:transparent}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stats .card{margin:0}
+.stats small{font-size:.7rem;font-weight:900;letter-spacing:.12em;text-transform:uppercase}
+.setting{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 0;border-bottom:2px solid var(--ink);font-weight:700;min-height:64px;width:100%;text-align:left}
+.setting small{display:block;color:var(--mute);font-weight:600;font-size:.84rem}
+.sw{flex:none;width:58px;height:34px;border:2.5px solid var(--ink);border-radius:99px;position:relative;background:var(--paper2);transition:background .2s}
+.sw::after{content:"";position:absolute;top:3px;left:3px;width:23px;height:23px;border-radius:50%;background:var(--ink);transition:transform .2s}
+.sw.on{background:var(--y)}
+.sw.on::after{transform:translateX(24px)}
+.credits{font-size:.8rem;font-weight:600;color:var(--mute);margin-top:20px;line-height:1.5}
+.sec-t{font-family:var(--serif);font-style:italic;font-weight:900;font-size:1.7rem;margin:28px 0 12px;line-height:1}
+
+/* Decoración en márgenes (pantallas anchas) */
+.margin-deco{display:none}
+@media (min-width:980px){
+  .margin-deco{display:block;position:fixed;top:0;bottom:0;width:calc((100vw - 560px)/2);pointer-events:none;z-index:0}
+  .margin-deco.l{left:0}.margin-deco.r{right:0}
+  .margin-deco > *{position:absolute}
+}
+
+/* Toast */
+.toast{position:fixed;left:50%;top:18px;transform:translate(-50%,calc(-100% - 40px));z-index:80;background:var(--ink);color:#fff;padding:10px 16px;border-radius:99px;font-weight:800;transition:transform .3s cubic-bezier(.2,.9,.3,1);max-width:calc(100vw - 32px);text-align:center}
+.toast.show{transform:translate(-50%,0)}
+.toast b{color:var(--y)}
+
+@media (min-width:600px){ body{font-size:17px} }
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+  .draw{stroke-dashoffset:0}
+  .confetti{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- Definiciones SVG compartidas: lápiz, bordes rotos, tramas de grabado -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <filter id="pencil" x="-10%" y="-10%" width="120%" height="120%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="4" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G" result="d"/>
+      <feTurbulence type="fractalNoise" baseFrequency="1.6" numOctaves="1" seed="9" result="g"/>
+      <feColorMatrix in="g" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -3 2.3" result="m"/>
+      <feComposite in="d" in2="m" operator="in"/>
+    </filter>
+    <filter id="rough" x="-10%" y="-10%" width="120%" height="120%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.05" numOctaves="3" seed="2" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="7" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <filter id="charcoal" x="-10%" y="-10%" width="120%" height="120%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="3" seed="7" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="9" xChannelSelector="R" yChannelSelector="G" result="d"/>
+      <feTurbulence type="fractalNoise" baseFrequency="1.1" numOctaves="2" seed="3" result="g"/>
+      <feColorMatrix in="g" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -4 3.1" result="m"/>
+      <feComposite in="d" in2="m" operator="in"/>
+    </filter>
+    <pattern id="hA" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(35)"><line x1="0" y1="0" x2="0" y2="5" stroke="#111" stroke-width="1"/></pattern>
+    <pattern id="hB" width="3" height="3" patternUnits="userSpaceOnUse" patternTransform="rotate(-40)"><line x1="0" y1="0" x2="0" y2="3" stroke="#111" stroke-width="1.15"/></pattern>
+    <pattern id="hC" width="3.2" height="3.2" patternUnits="userSpaceOnUse" patternTransform="rotate(20)"><path d="M0 0V3.2M0 0H3.2" stroke="#111" stroke-width="1.1"/></pattern>
+    <pattern id="hD" width="2.4" height="2.4" patternUnits="userSpaceOnUse" patternTransform="rotate(80)"><line x1="0" y1="0" x2="0" y2="2.4" stroke="#111" stroke-width="1.4"/></pattern>
+    <pattern id="hE" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(0)"><line x1="0" y1="0" x2="7" y2="0" stroke="#111" stroke-width=".7"/></pattern>
+  </defs>
+</svg>
+
+<div class="margin-deco l" id="decoL" aria-hidden="true"></div>
+<div class="margin-deco r" id="decoR" aria-hidden="true"></div>
+
+<div id="app">
+  <header class="top" id="top"></header>
+  <main id="view"></main>
+</div>
+<nav class="tabs" id="tabs" aria-label="Secciones"></nav>
+<section id="lesson" hidden aria-live="polite"></section>
+<div id="modal" hidden></div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+/* =========================================================
+   DATOS · Para agregar palabras, añade objetos a PALABRAS
+   ---------------------------------------------------------
+   p    palabra (lema)
+   c    'adj' | 'verbo' | 'sust'   (sirve para elegir distractores)
+   d    definición breve
+   h    ejemplo hablado            f  ejemplo escrito/formal
+   ev   palabras comunes a sustituir ("en vez de decir…")
+   s    sinónimos (el primero se usa en "Une las parejas")
+   a    antónimos
+   e    etimología poética
+   x    {t:'cita'|'dato', txt, aut?, obra?, nota?}
+        · Solo citas reales de obras en dominio público.
+   comp frase para completar; ___ marca el hueco (debe encajar el lema)
+   mej  [frase con la palabra común entre [corchetes], forma culta concordada]
+   vf   [[frase, verdadera?, explicación], …]
+   ========================================================= */
+const PALABRAS = [
+{p:'diáfano',c:'adj',d:'Claro, transparente; que se entiende sin esfuerzo.',
+ h:'Después de tu explicación, todo me quedó diáfano.',
+ f:'Solicitamos una respuesta diáfana sobre los plazos del proyecto.',
+ ev:['claro','transparente'],s:['claro','transparente','nítido','cristalino'],a:['turbio','confuso','opaco'],
+ e:'Del griego diaphanés: lo que deja pasar la luz a través de sí. Una idea diáfana es una ventana, no una pared.',
+ x:{t:'cita',txt:'Corrientes aguas, puras, cristalinas, / árboles que os estáis mirando en ellas',aut:'Garcilaso de la Vega',obra:'Égloga I',nota:'Garcilaso no escribe «diáfano», pero no hay agua más diáfana en nuestra lengua.'},
+ comp:'El agua del lago era tan ___ que se veían las piedras del fondo.',
+ mej:['Quiero que el contrato sea [claro] para ambas partes.','diáfano'],
+ vf:[['Su intención fue diáfana: lo dijo sin rodeos.',true,'Diáfano es claro, sin ambigüedad.'],['La niebla era tan diáfana que no se veía nada.',false,'Si no se veía nada, la niebla era espesa, no diáfana.']]},
+
+{p:'ecuánime',c:'adj',d:'Que juzga con imparcialidad y mantiene la calma, incluso en situaciones tensas.',
+ h:'Mi abuela siempre fue ecuánime: escuchaba a los dos antes de opinar.',
+ f:'Agradecemos su postura ecuánime durante la mediación.',
+ ev:['justo','imparcial','tranquilo'],s:['imparcial','sereno','justo','equilibrado'],a:['parcial','arbitrario','exaltado'],
+ e:'Del latín aequanimis: aequus, «igual, parejo», y animus, «ánimo». El ecuánime tiene el ánimo nivelado, como el agua quieta.',
+ x:{t:'cita',txt:'Hombres necios que acusáis / a la mujer sin razón, / sin ver que sois la ocasión / de lo mismo que culpáis',aut:'Sor Juana Inés de la Cruz',obra:'Redondillas',nota:'Un reclamo de juicio ecuánime escrito en el siglo XVII.'},
+ comp:'Necesitamos un árbitro ___ que no favorezca a ningún equipo.',
+ mej:['La jueza fue muy [justa] al escuchar a ambas partes.','ecuánime'],
+ vf:[['Perdió los nervios y gritó a todos: fue muy ecuánime.',false,'Ecuánime implica calma y equilibrio.'],['Un buen jefe es ecuánime al repartir el trabajo.',true,'Reparte con imparcialidad.']]},
+
+{p:'soslayar',c:'verbo',d:'Evitar o esquivar un asunto o una dificultad, pasándolo de lado.',
+ h:'No soslayes el tema: dime qué pasó.',
+ f:'El informe soslaya los riesgos financieros del proyecto.',
+ ev:['evitar','esquivar','eludir'],s:['eludir','esquivar','evitar','sortear'],a:['afrontar','encarar','abordar'],
+ e:'Viene de mirar «de soslayo»: de lado, oblicuamente. Quien soslaya no choca de frente con el problema; lo rodea como el agua rodea una piedra.',
+ x:{t:'cita',txt:'En un lugar de la Mancha, de cuyo nombre no quiero acordarme…',aut:'Miguel de Cervantes',obra:'Don Quijote de la Mancha',nota:'La frase más célebre del idioma soslaya, con toda intención, un nombre.'},
+ comp:'El político intentó ___ la pregunta sobre su patrimonio.',
+ mej:['En la reunión intentó [evitar] el tema del presupuesto.','soslayar'],
+ vf:[['Soslayó el problema y lo resolvió de inmediato.',false,'Soslayar es esquivar, no resolver.'],['Supo soslayar la pregunta incómoda con una broma.',true,'La esquivó con habilidad.']]},
+
+{p:'inocuo',c:'adj',d:'Que no hace daño.',
+ h:'Tranquilo, ese bicho es inocuo.',
+ f:'El producto ha demostrado ser inocuo para la salud.',
+ ev:['inofensivo'],s:['inofensivo','benigno','inocente'],a:['nocivo','dañino','perjudicial'],
+ e:'Del latín innocuus: in-, «no», y nocere, «dañar». Comparte raíz con «nocivo», su contrario.',
+ x:{t:'dato',txt:'«Inocente» e «inocuo» son hermanos: en latín, innocens no era el ingenuo, sino el que no hacía daño a nadie.'},
+ comp:'El médico aseguró que el medicamento era ___ y no tenía efectos secundarios.',
+ mej:['Fue un comentario [inofensivo], no quise molestarte.','inocuo'],
+ vf:[['La picadura fue inocua: tuvo que ir al hospital.',false,'Si acabó en el hospital, la picadura fue dañina.'],['Es una broma inocua, nadie se va a ofender.',true,'No causa daño.']]},
+
+{p:'paliar',c:'verbo',d:'Atenuar o suavizar un daño, un dolor o un problema, aunque no desaparezca del todo.',
+ h:'Me tomé un té para paliar el frío.',
+ f:'Se tomarán medidas para paliar los efectos de la crisis.',
+ ev:['aliviar','mitigar','suavizar'],s:['mitigar','aliviar','atenuar','suavizar'],a:['agravar','empeorar','intensificar'],
+ e:'Del latín palliare, «cubrir con un manto» (pallium). Paliar es echar un abrigo sobre la herida: no la cura, pero la protege del frío.',
+ x:{t:'dato',txt:'De la misma familia es «paliativo»: los cuidados paliativos no buscan curar, sino aliviar.'},
+ comp:'Repartieron mantas para ___ el frío de la noche.',
+ mej:['Estas ayudas intentan [aliviar] la falta de vivienda.','paliar'],
+ vf:[['Paliar un problema es resolverlo por completo.',false,'Paliar es atenuar, no eliminar.'],['Abrimos las ventanas para paliar el calor.',true,'Se suaviza el calor, aunque no desaparezca.']]},
+
+{p:'exiguo',c:'adj',d:'Escaso, insuficiente.',
+ h:'Con ese sueldo tan exiguo no llego a fin de mes.',
+ f:'El presupuesto asignado resulta exiguo para los objetivos planteados.',
+ ev:['escaso','poco','pequeño'],s:['escaso','insuficiente','reducido','mezquino'],a:['abundante','copioso','holgado'],
+ e:'Del latín exiguus, de exigere: pesar con exactitud. Lo exiguo fue medido tan al justo que se quedó corto.',
+ x:{t:'dato',txt:'Es pariente de «exigir» y de «exacto»: todas nacen de pesar algo en la balanza sin dar un gramo de más.'},
+ comp:'Con un margen tan ___ no podremos terminar el informe a tiempo.',
+ mej:['La ración fue muy [escasa] para tanta gente.','exigua'],
+ vf:[['Ganó por un margen exiguo: apenas tres votos.',true,'Un margen muy escaso.'],['El banquete fue exiguo: sobró comida para una semana.',false,'Si sobró tanto, fue abundante.']]},
+
+{p:'elocuente',c:'adj',d:'Que habla o escribe con claridad y fuerza para convencer o conmover; también, lo que expresa mucho sin palabras.',
+ h:'Su silencio fue más elocuente que cualquier excusa.',
+ f:'La presentación fue elocuente y convenció al comité.',
+ ev:['convincente','expresivo'],s:['expresivo','persuasivo','convincente','significativo'],a:['inexpresivo','torpe','balbuciente'],
+ e:'Del latín eloquens: ex-, «hacia fuera», y loqui, «hablar». Elocuente es quien saca las palabras de dentro y las pone justo donde tienen que estar.',
+ x:{t:'cita',txt:'La pluma es lengua del alma.',aut:'Miguel de Cervantes',obra:'Don Quijote de la Mancha'},
+ comp:'Fue un discurso tan ___ que el público aplaudió de pie.',
+ mej:['Las cifras son muy [expresivas]: las ventas cayeron a la mitad.','elocuentes'],
+ vf:[['Su mirada fue elocuente: no hizo falta que dijera nada.',true,'Expresó mucho sin palabras.'],['Es tan elocuente que nadie entiende lo que quiere decir.',false,'El elocuente se hace entender.']]},
+
+{p:'perentorio',c:'adj',d:'Urgente, que no admite demora; también, decisivo y terminante.',
+ h:'Tengo una necesidad perentoria de café.',
+ f:'Le recordamos que el plazo para presentar la documentación es perentorio.',
+ ev:['urgente','inaplazable'],s:['urgente','apremiante','inaplazable','terminante'],a:['aplazable','prorrogable','opcional'],
+ e:'Del latín peremptorius, de perimere, «destruir, extinguir». Un plazo perentorio mata cualquier posibilidad de aplazar.',
+ x:{t:'dato',txt:'En lenguaje jurídico, un «plazo perentorio» es improrrogable: cuando vence, se pierde el derecho.'},
+ comp:'Recibimos una orden ___: había que evacuar el edificio en cinco minutos.',
+ mej:['Necesitamos una respuesta [urgente] antes del viernes.','perentoria'],
+ vf:[['Es un asunto perentorio; lo vemos el mes que viene sin problema.',false,'Lo perentorio no admite espera.'],['Le dio un tono perentorio a su petición: lo quería ya.',true,'Urgente y terminante.']]},
+
+{p:'dilucidar',c:'verbo',d:'Aclarar y explicar un asunto o una duda.',
+ h:'A ver si dilucidamos quién se comió el último trozo de pastel.',
+ f:'La auditoría permitirá dilucidar las causas del error contable.',
+ ev:['aclarar','averiguar','resolver'],s:['aclarar','esclarecer','elucidar','desentrañar'],a:['confundir','embrollar','enredar'],
+ e:'Del latín dilucidare, de lux, «luz». Dilucidar es encender una lámpara en medio de la duda.',
+ x:{t:'cita',txt:'¿Qué es poesía?, dices mientras clavas / en mi pupila tu pupila azul. / ¿Qué es poesía? ¿Y tú me lo preguntas? / Poesía… eres tú.',aut:'Gustavo Adolfo Bécquer',obra:'Rima XXI',nota:'Bécquer dilucida en cuatro versos lo que otros no aclaran en un tratado.'},
+ comp:'La comisión intentará ___ qué ocurrió aquella noche.',
+ mej:['Hay que [aclarar] quién aprobó el gasto.','dilucidar'],
+ vf:[['Tras la reunión todo quedó más confuso: logramos dilucidar el asunto.',false,'Dilucidar es aclarar, no confundir.'],['La investigación ayudó a dilucidar el misterio.',true,'Lo aclaró.']]},
+
+{p:'acérrimo',c:'adj',d:'Muy firme, tenaz o intransigente; se dice sobre todo de partidarios o enemigos.',
+ h:'Es un hincha acérrimo de su equipo: no se pierde un partido.',
+ f:'Fue un acérrimo defensor de la reforma educativa.',
+ ev:['fanático','convencido','firme'],s:['tenaz','fervoroso','incondicional','encarnizado'],a:['tibio','indiferente','moderado'],
+ e:'Es el superlativo latino de acer, «agrio, punzante»: acerrimus, lo agudísimo. Un defensor acérrimo tiene la convicción afilada.',
+ x:{t:'dato',txt:'Es un superlativo irregular, como «celebérrimo» o «paupérrimo». Por eso decir «muy acérrimo» es redundante.'},
+ comp:'Mi tío es un ___ enemigo de las redes sociales: no tiene ni correo.',
+ mej:['Es una defensora muy [convencida] de los derechos de los animales.','acérrima'],
+ vf:[['Es un acérrimo fan de la banda: le da igual si tocan o no.',false,'Al acérrimo nunca le da igual.'],['Fue un acérrimo crítico del proyecto desde el primer día.',true,'Un crítico firme y tenaz.']]},
+
+{p:'prolijo',c:'adj',d:'Largo y detallado en exceso; también, muy cuidadoso o esmerado.',
+ h:'No seas tan prolijo y ve al grano.',
+ f:'El documento es prolijo; recomendamos una versión resumida.',
+ ev:['largo','detallado','pesado'],s:['extenso','minucioso','farragoso','detallado'],a:['breve','conciso','sucinto'],
+ e:'Del latín prolixus, «que fluye hacia delante, que se derrama». Lo prolijo se desborda como un río que no sabe dónde parar.',
+ x:{t:'dato',txt:'En Argentina y Uruguay «prolijo» suele ser un elogio: un trabajo prolijo es un trabajo limpio y esmerado.'},
+ comp:'Su explicación fue tan ___ que nos perdimos a la mitad.',
+ mej:['El correo era demasiado [largo] y nadie lo leyó entero.','prolijo'],
+ vf:[['Fue muy prolijo: resumió todo en una línea.',false,'Resumir en una línea es ser breve.'],['Escribió un prolijo informe de ochenta páginas.',true,'Largo y detallado.']]},
+
+{p:'nimio',c:'adj',d:'Insignificante, de muy poca importancia.',
+ h:'Discutieron por un detalle nimio.',
+ f:'Se trata de un error nimio que no afecta al resultado final.',
+ ev:['insignificante','pequeño','sin importancia'],s:['insignificante','trivial','irrelevante','baladí'],a:['importante','relevante','trascendental'],
+ e:'Del latín nimius, «excesivo, demasiado». Curiosa paradoja: la palabra que nombraba lo desmesurado acabó designando lo minúsculo.',
+ x:{t:'dato',txt:'El diccionario académico todavía recoge su sentido antiguo de «excesivo», pero hoy casi todos lo usamos como «insignificante».'},
+ comp:'No vale la pena pelearse por algo tan ___.',
+ mej:['Es un detalle [sin importancia], no te preocupes.','nimio'],
+ vf:[['Fue un fallo nimio que provocó la caída de todo el sistema.',false,'Si tumbó todo el sistema, no fue nimio.'],['Se enfadó por una razón nimia.',true,'Por algo insignificante.']]},
+
+{p:'sucinto',c:'adj',d:'Breve y resumido; que dice lo esencial con pocas palabras.',
+ h:'Te lo cuento de forma sucinta: nos vamos mañana.',
+ f:'Adjunto un resumen sucinto de los acuerdos alcanzados.',
+ ev:['breve','corto','resumido'],s:['breve','conciso','resumido','escueto'],a:['extenso','prolijo','detallado'],
+ e:'Del latín succinctus, «ceñido, arremangado»: el que se recogía la túnica para moverse ligero. Un texto sucinto va sin ropa sobrante.',
+ x:{t:'cita',txt:'Lo bueno, si breve, dos veces bueno.',aut:'Baltasar Gracián',obra:'Oráculo manual y arte de prudencia'},
+ comp:'Haz una presentación ___: solo tenemos cinco minutos.',
+ mej:['Envíame un resumen [corto] del proyecto.','sucinto'],
+ vf:[['Su respuesta sucinta ocupó diez páginas.',false,'Diez páginas no es sucinto.'],['Fue sucinto: en tres frases explicó el plan.',true,'Lo esencial en pocas palabras.']]},
+
+{p:'vehemente',c:'adj',d:'Que actúa o se expresa con pasión, ímpetu y fuerza.',
+ h:'Se puso vehemente defendiendo a su hermana.',
+ f:'La directora hizo una defensa vehemente del presupuesto.',
+ ev:['apasionado','intenso','impetuoso'],s:['apasionado','ardiente','impetuoso','fogoso'],a:['tibio','apático','frío'],
+ e:'Del latín vehemens. Los antiguos la explicaban como ve-, «sin», y mens, «mente»: quien habla tan arrebatado que parece fuera de sí.',
+ x:{t:'cita',txt:'Yo soy ardiente, yo soy morena, / yo soy el símbolo de la pasión',aut:'Gustavo Adolfo Bécquer',obra:'Rima XI'},
+ comp:'Pronunció un discurso ___ contra la injusticia.',
+ mej:['Defendió su idea de forma muy [apasionada].','vehemente'],
+ vf:[['Habló con tono vehemente, casi sin ganas.',false,'Lo vehemente es apasionado, nunca desganado.'],['Su protesta vehemente hizo que todos se callaran.',true,'Una protesta llena de fuerza.']]},
+
+{p:'taciturno',c:'adj',d:'Callado y silencioso; también, triste o melancólico.',
+ h:'Hoy estás muy taciturno, ¿te pasa algo?',
+ f:'Tras la noticia, el equipo se mostró taciturno durante la reunión.',
+ ev:['callado','serio','triste'],s:['callado','silencioso','melancólico','sombrío'],a:['hablador','locuaz','alegre'],
+ e:'Del latín taciturnus, de tacere, «callar». El taciturno guarda el silencio como quien guarda una carta sin abrir.',
+ x:{t:'cita',txt:'La princesa está triste… ¿qué tendrá la princesa? / Los suspiros se escapan de su boca de fresa',aut:'Rubén Darío',obra:'Sonatina'},
+ comp:'Desde que se mudó, mi vecino anda ___ y apenas saluda.',
+ mej:['Estuvo muy [callado] toda la cena.','taciturno'],
+ vf:[['Es tan taciturno que no para de contar chistes.',false,'El taciturno habla poco.'],['Pasó la tarde taciturno, mirando por la ventana.',true,'Callado y pensativo.']]},
+
+{p:'efímero',c:'adj',d:'Que dura muy poco tiempo.',
+ h:'La alegría fue efímera: al día siguiente perdimos.',
+ f:'El efecto de la campaña fue efímero y las ventas volvieron a bajar.',
+ ev:['pasajero','breve','fugaz'],s:['fugaz','pasajero','transitorio','momentáneo'],a:['duradero','perenne','eterno'],
+ e:'Del griego ephémeros: epi, «sobre», y heméra, «día». Lo efímero vive un solo día, como ciertas flores y ciertos insectos.',
+ x:{t:'cita',txt:'coged de vuestra alegre primavera / el dulce fruto, antes que el tiempo airado / cubra de nieve la hermosa cumbre.',aut:'Garcilaso de la Vega',obra:'Soneto XXIII'},
+ comp:'La fama en internet suele ser ___: hoy todos te conocen y mañana nadie.',
+ mej:['Fue un éxito [pasajero].','efímero'],
+ vf:[['Las pirámides de Egipto son un monumento efímero.',false,'Llevan en pie más de cuatro mil años.'],['El arcoíris es un fenómeno efímero.',true,'Dura apenas unos minutos.']]},
+
+{p:'inexorable',c:'adj',d:'Que no se puede evitar ni detener; también, que no se deja convencer por ruegos.',
+ h:'El lunes llega de forma inexorable.',
+ f:'Si no cambiamos de proveedor, la subida de costes será inexorable.',
+ ev:['inevitable','implacable'],s:['inevitable','implacable','ineludible','inflexible'],a:['evitable','flexible','clemente'],
+ e:'Del latín inexorabilis: in-, «no», y exorare, «convencer rogando». Lo inexorable no escucha súplicas: sigue su camino.',
+ x:{t:'cita',txt:'Ayer se fue; mañana no ha llegado; / hoy se está yendo sin parar un punto',aut:'Francisco de Quevedo',obra:'Soneto «¡Ah de la vida!»'},
+ comp:'El paso del tiempo es ___: nadie puede detenerlo.',
+ mej:['El cierre de la fábrica parece [inevitable].','inexorable'],
+ vf:[['La marea avanzaba, inexorable, hacia el castillo de arena.',true,'Nada podía detenerla.'],['El final era inexorable, así que lo evitamos fácilmente.',false,'Lo inexorable no se puede evitar.']]},
+
+{p:'ubicuo',c:'adj',d:'Que está, o parece estar, en todas partes.',
+ h:'Los móviles se han vuelto ubicuos: hasta mi abuela tiene uno.',
+ f:'El plástico es un material ubicuo en nuestra cadena de suministro.',
+ ev:['omnipresente','por todas partes'],s:['omnipresente','generalizado','universal'],a:['ausente','escaso','raro'],
+ e:'Del latín ubique, «en todas partes». Lo ubicuo no tiene un lugar: los tiene todos.',
+ x:{t:'dato',txt:'Durante siglos, «ubicuidad» fue un término teológico, reservado a Dios. Hoy lo usamos para el wifi.'},
+ comp:'Las cámaras de seguridad se han vuelto ___ en las ciudades.',
+ mej:['Esa marca de café es [omnipresente] en la ciudad.','ubicua'],
+ vf:[['Es un animal ubicuo: solo vive en una isla del Pacífico.',false,'Si solo vive en una isla, no está en todas partes.'],['La publicidad es ubicua: la ves hasta en el ascensor.',true,'Está en todas partes.']]},
+
+{p:'idóneo',c:'adj',d:'Adecuado o apropiado para algo.',
+ h:'Este es el momento idóneo para pedirle el favor.',
+ f:'Buscamos al candidato idóneo para el puesto de coordinación.',
+ ev:['adecuado','ideal','apropiado'],s:['adecuado','apropiado','apto','conveniente'],a:['inadecuado','inapropiado','inepto'],
+ e:'Del latín idoneus, «apto, capaz». Lo idóneo encaja como la llave en su cerradura.',
+ x:{t:'dato',txt:'Es una de las palabras favoritas de las ofertas de empleo y del lenguaje jurídico: «persona idónea», «medio idóneo».'},
+ comp:'Este parque es el lugar ___ para hacer un pícnic.',
+ mej:['Es la persona [ideal] para dirigir el equipo.','idónea'],
+ vf:[['Llover a cántaros es el clima idóneo para tender la ropa.',false,'Es justo el clima menos adecuado.'],['Encontró el regalo idóneo: justo lo que ella quería.',true,'El regalo adecuado.']]},
+
+{p:'procrastinar',c:'verbo',d:'Aplazar o dejar para más tarde lo que hay que hacer.',
+ h:'Deja de procrastinar y ponte a estudiar.',
+ f:'Procrastinar las decisiones clave retrasa todo el calendario.',
+ ev:['aplazar','posponer','dejar para mañana'],s:['aplazar','posponer','postergar','diferir'],a:['adelantar','anticipar','emprender'],
+ e:'Del latín procrastinare: pro-, «hacia delante», y crastinus, «de mañana». Procrastinar es empujar las cosas hacia un mañana que nunca llega.',
+ x:{t:'cita',txt:'La diligencia es madre de la buena ventura.',aut:'Miguel de Cervantes',obra:'Don Quijote de la Mancha'},
+ comp:'Si sigues sin empezar el trabajo, es que vuelves a ___.',
+ mej:['Tiendo a [aplazar] las tareas aburridas.','procrastinar'],
+ vf:[['Como no quería procrastinar, lo terminé en cuanto me lo pidieron.',true,'Hizo lo contrario de aplazar.'],['Procrastiné tanto que entregué el trabajo una semana antes.',false,'Quien procrastina entrega tarde.']]},
+
+{p:'ínfulas',c:'sust',d:'Aires de importancia, presunción o vanidad. Se usa en plural: «darse ínfulas», «tener ínfulas».',
+ h:'Desde que lo ascendieron se da unas ínfulas insoportables.',
+ f:'El proyecto tiene ínfulas de gran producción, pero un presupuesto modesto.',
+ ev:['aires','pretensiones','humos'],s:['humos','aires','pretensiones','presunción'],a:['humildad','sencillez','modestia'],
+ e:'Del latín infula: la cinta de lana que ceñía la cabeza de los sacerdotes como signo de dignidad. De adorno sagrado pasó a nombrar a quien se cree más digno de lo que es.',
+ x:{t:'cita',txt:'Llaneza, muchacho; no te encumbres, que toda afectación es mala.',aut:'Miguel de Cervantes',obra:'Don Quijote de la Mancha'},
+ comp:'Es muy buena persona, pero a veces se da ___ de millonario.',
+ mej:['Llegó con muchos [humos], dando órdenes a todo el mundo.','ínfulas'],
+ vf:[['Tiene ínfulas de artista: se considera un genio incomprendido.',true,'Presume de lo que cree ser.'],['Es tan humilde que va por la vida dándose ínfulas.',false,'Darse ínfulas es lo contrario de la humildad.']]},
+
+{p:'lacónico',c:'adj',d:'Breve y conciso al hablar o escribir, a veces hasta parecer seco.',
+ h:'Le pregunté cómo le fue y me dio una respuesta lacónica: «bien».',
+ f:'Recibimos un lacónico comunicado de la empresa.',
+ ev:['escueto','seco','breve'],s:['escueto','conciso','parco','seco'],a:['locuaz','verboso','prolijo'],
+ e:'De Laconia, la región de Esparta. Los espartanos eran famosos por hablar poco y decirlo todo.',
+ x:{t:'dato',txt:'Cuenta Plutarco que Filipo de Macedonia amenazó a los espartanos: «Si entro en Laconia, os expulsaré». Respondieron con una sola palabra: «Si».'},
+ comp:'Su respuesta fue ___: solo dijo «no».',
+ mej:['Me envió un mensaje muy [seco]: «Recibido».','lacónico'],
+ vf:[['Fue lacónico: habló durante dos horas sin parar.',false,'El lacónico habla poco.'],['El telegrama, lacónico, decía: «Llego martes».',true,'Breve y conciso.']]},
+
+{p:'mesurado',c:'adj',d:'Moderado, prudente y equilibrado en sus palabras o actos.',
+ h:'Es muy mesurado: nunca levanta la voz.',
+ f:'Recomendamos una respuesta mesurada ante las críticas en redes.',
+ ev:['moderado','prudente','tranquilo'],s:['moderado','comedido','prudente','sensato'],a:['desmedido','impulsivo','exagerado'],
+ e:'Del latín mensura, «medida». El mesurado lleva una regla invisible y no se pasa de la raya.',
+ x:{t:'cita',txt:'Fabló mio Çid bien e tan mesurado',aut:'Anónimo',obra:'Cantar de mio Cid',nota:'En el primer gran poema de la lengua, la mesura ya era virtud de héroe.'},
+ comp:'Ante la crisis, la directora dio un discurso ___ y tranquilizador.',
+ mej:['Fue muy [prudente] al hablar con la prensa.','mesurado'],
+ vf:[['Con su estilo mesurado, gritó y rompió una silla.',false,'Gritar y romper sillas es lo opuesto a la mesura.'],['Hizo un comentario mesurado para no herir a nadie.',true,'Moderado y prudente.']]},
+
+{p:'obcecado',c:'adj',d:'Que se aferra a una idea o a un error y no atiende razones.',
+ h:'Está obcecado con que tiene razón y no hay quien lo convenza.',
+ f:'Mantener una postura obcecada nos impide llegar a un acuerdo.',
+ ev:['terco','cabezota','empecinado'],s:['terco','obstinado','empecinado','ofuscado'],a:['razonable','flexible','abierto'],
+ e:'Del latín obcaecare: ob-, «delante», y caecus, «ciego». El obcecado lleva delante de los ojos una venda que él mismo se puso.',
+ x:{t:'cita',txt:'Del poco dormir y del mucho leer, se le secó el celebro, de manera que vino a perder el juicio.',aut:'Miguel de Cervantes',obra:'Don Quijote de la Mancha',nota:'El caballero más obcecado de la literatura.'},
+ comp:'Está tan ___ con su teoría que no escucha a nadie.',
+ mej:['No seas tan [terco] y escucha otras opiniones.','obcecado'],
+ vf:[['Es muy obcecado: cambia de opinión al primer argumento.',false,'El obcecado no cede ante razones.'],['Obcecado en su error, siguió por el camino equivocado.',true,'No atendió razones.']]},
+
+{p:'pusilánime',c:'adj',d:'Falto de ánimo y de valor para afrontar dificultades o tomar decisiones.',
+ h:'No seas pusilánime y díselo de una vez.',
+ f:'Una gestión pusilánime agravaría la situación.',
+ ev:['cobarde','miedoso','apocado'],s:['cobarde','apocado','timorato','medroso'],a:['valiente','audaz','osado'],
+ e:'Del latín pusillanimis: pusillus, «muy pequeño», y animus, «ánimo». El pusilánime tiene el alma del tamaño de un dedal.',
+ x:{t:'cita',txt:'Por la libertad, así como por la honra, se puede y debe aventurar la vida.',aut:'Miguel de Cervantes',obra:'Don Quijote de la Mancha',nota:'Exactamente lo contrario de una actitud pusilánime.'},
+ comp:'Fue ___ al no atreverse a defender a su compañero.',
+ mej:['Fue una decisión muy [miedosa].','pusilánime'],
+ vf:[['Fue pusilánime: se lanzó al agua sin pensarlo para rescatar al niño.',false,'Eso es valentía.'],['Una respuesta pusilánime solo empeorará el conflicto.',true,'Una respuesta sin valor ni decisión.']]},
+
+{p:'recóndito',c:'adj',d:'Muy escondido, reservado u oculto.',
+ h:'Viven en un pueblo recóndito de la sierra.',
+ f:'El programa llega a los rincones más recónditos del país.',
+ ev:['escondido','oculto','apartado'],s:['escondido','oculto','apartado','íntimo'],a:['visible','expuesto','accesible'],
+ e:'Del latín reconditus, de recondere, «volver a guardar, esconder». Lo recóndito está guardado dos veces.',
+ x:{t:'cita',txt:'Del salón en el ángulo oscuro, / de su dueño tal vez olvidada, / silenciosa y cubierta de polvo / veíase el arpa.',aut:'Gustavo Adolfo Bécquer',obra:'Rima VII'},
+ comp:'Guardaba la carta en el rincón más ___ del cajón.',
+ mej:['Encontramos una playa [escondida] entre las rocas.','recóndita'],
+ vf:[['Un lugar recóndito es fácil de encontrar.',false,'Lo recóndito está escondido.'],['En lo más recóndito de su memoria guardaba aquella canción.',true,'En lo más profundo y oculto.']]},
+
+{p:'sagaz',c:'adj',d:'Astuto y perspicaz; que capta enseguida lo que otros no ven.',
+ h:'Qué sagaz: te diste cuenta antes que nadie.',
+ f:'Su sagaz análisis del mercado anticipó la caída de las ventas.',
+ ev:['listo','astuto','avispado'],s:['perspicaz','astuto','agudo','avispado'],a:['ingenuo','torpe','lerdo'],
+ e:'Del latín sagax, que los romanos usaban para los perros de caza de buen olfato. El sagaz huele la verdad antes de verla.',
+ x:{t:'cita',txt:'El que lee mucho y anda mucho, vee mucho y sabe mucho.',aut:'Miguel de Cervantes',obra:'Don Quijote de la Mancha'},
+ comp:'El detective, muy ___, descubrió al culpable por una mancha de tinta.',
+ mej:['Hizo una pregunta muy [lista] que nos dejó pensando.','sagaz'],
+ vf:[['Fue tan sagaz que se dejó engañar por el truco más viejo.',false,'El sagaz no cae en trucos viejos.'],['Una observación sagaz cambió el rumbo de la reunión.',true,'Aguda y perspicaz.']]},
+
+{p:'tácito',c:'adj',d:'Que no se dice expresamente, pero se entiende o se da por supuesto.',
+ h:'Teníamos un acuerdo tácito: tú cocinas y yo friego.',
+ f:'Su silencio supone una aceptación tácita de las condiciones.',
+ ev:['implícito','sobreentendido'],s:['implícito','sobreentendido','supuesto','callado'],a:['explícito','expreso','manifiesto'],
+ e:'Del latín tacitus, «callado», de tacere. Lo tácito habla sin abrir la boca.',
+ x:{t:'cita',txt:'habló el orgullo y se enjugó su llanto, / y la frase en mis labios expiró.',aut:'Gustavo Adolfo Bécquer',obra:'Rima XXX',nota:'Un perdón que quedó tácito: nunca llegó a decirse.'},
+ comp:'Entre ellos había un pacto ___: nunca hablaban de política en la cena.',
+ mej:['Hubo un acuerdo [implícito] entre los vecinos.','tácito'],
+ vf:[['Lo firmaron por escrito y ante notario: fue un acuerdo tácito.',false,'Por escrito es explícito, no tácito.'],['Su sonrisa fue una aprobación tácita.',true,'Aprobó sin decirlo.']]},
+
+{p:'vetusto',c:'adj',d:'Muy antiguo o viejo, con el peso de los años.',
+ h:'Aún usa aquel ordenador vetusto que hace ruido de avión.',
+ f:'Es necesario reemplazar la vetusta infraestructura de la red.',
+ ev:['viejo','antiguo','anticuado'],s:['antiguo','viejo','añejo','arcaico'],a:['nuevo','moderno','reciente'],
+ e:'Del latín vetustus, de vetus, «viejo». De la misma raíz es «veterano»: el que ya ha visto pasar muchos inviernos.',
+ x:{t:'cita',txt:'Miré los muros de la patria mía, / si un tiempo fuertes, ya desmoronados',aut:'Francisco de Quevedo',obra:'Soneto «Miré los muros de la patria mía»'},
+ comp:'Subimos por la escalera ___ de la catedral, gastada por los siglos.',
+ mej:['La empresa trabaja con un sistema [viejo] que falla cada semana.','vetusto'],
+ vf:[['Estrenó un móvil vetusto, recién salido al mercado.',false,'Lo recién salido es nuevo.'],['El vetusto caserón tenía más de tres siglos.',true,'Muy antiguo.']]},
+
+{p:'zozobra',c:'sust',d:'Inquietud, angustia o intranquilidad ante algo que se teme.',
+ h:'Pasé la noche en zozobra esperando tu llamada.',
+ f:'Las noticias sobre los despidos generaron zozobra entre los empleados.',
+ ev:['angustia','nervios','intranquilidad'],s:['angustia','inquietud','desasosiego','congoja'],a:['calma','sosiego','tranquilidad'],
+ e:'Viene del lenguaje del mar: «zozobrar» es lo que hace un barco a punto de hundirse, quizá del catalán sotsobre, «lo de abajo, arriba». La zozobra es un naufragio por dentro.',
+ x:{t:'cita',txt:'pues no hay dolor más grande que el dolor de ser vivo, / ni mayor pesadumbre que la vida consciente.',aut:'Rubén Darío',obra:'Lo fatal'},
+ comp:'Vivieron días de ___ hasta que llegaron los resultados médicos.',
+ mej:['La espera de la noticia nos llenó de [nervios].','zozobra'],
+ vf:[['Sintió una profunda zozobra y durmió tranquilo toda la noche.',false,'La zozobra quita el sueño.'],['La tormenta mantuvo en zozobra a los pescadores.',true,'Inquietos y angustiados.']]},
+
+/* ---- Ampliación: más verbos y sustantivos útiles ---- */
+{p:'subsanar',c:'verbo',d:'Corregir un error o reparar una falta o un defecto.',
+ h:'Me equivoqué con la reserva, pero ya lo subsané.',
+ f:'Disponen de diez días para subsanar los errores de la solicitud.',
+ ev:['corregir','arreglar','reparar'],s:['corregir','reparar','enmendar','remediar'],a:['estropear','empeorar','descuidar'],
+ e:'De sub-, «bajo», y sanar: curar desde la raíz. Subsanar no tapa el error; lo cura.',
+ x:{t:'dato',txt:'Es una palabra estrella de la administración: si a tu trámite le falta un papel, te pedirán que lo «subsanes» en un plazo.'},
+ comp:'Antes de enviar el informe, hay que ___ las erratas.',
+ mej:['Necesitamos [arreglar] el fallo de la factura cuanto antes.','subsanar'],
+ vf:[['Subsanó el error dejándolo exactamente igual.',false,'Subsanar es corregir.'],['La empresa subsanó el fallo con una actualización.',true,'Lo corrigió.']]},
+
+{p:'menoscabar',c:'verbo',d:'Disminuir, dañar o quitar valor, prestigio o fuerza a algo o a alguien.',
+ h:'Esos comentarios menoscaban tu trabajo; no les hagas caso.',
+ f:'Estas medidas podrían menoscabar la confianza de nuestros clientes.',
+ ev:['dañar','perjudicar','rebajar'],s:['mermar','perjudicar','deteriorar','desacreditar'],a:['favorecer','realzar','fortalecer'],
+ e:'Se forma con «menos» y «cabo», el extremo de algo: dejar una cosa más corta de lo que era, mordiéndole el borde.',
+ x:{t:'dato',txt:'Su sustantivo, «menoscabo», vive en el lenguaje jurídico: «sin menoscabo de sus derechos» significa «sin perjudicarlos».'},
+ comp:'Un escándalo así puede ___ la reputación de cualquier empresa.',
+ mej:['Esa crítica intenta [dañar] su credibilidad.','menoscabar'],
+ vf:[['El premio menoscabó su prestigio y lo hizo más respetado que nunca.',false,'Menoscabar es restar, no sumar.'],['Las mentiras menoscabaron la confianza del equipo.',true,'La dañaron.']]},
+
+{p:'esgrimir',c:'verbo',d:'Usar un argumento, una razón o un objeto como arma para defenderse o atacar.',
+ h:'Siempre esgrime la misma excusa para no venir.',
+ f:'La empresa esgrimió razones técnicas para justificar el retraso.',
+ ev:['usar','alegar','sacar'],s:['alegar','blandir','argüir','invocar'],a:['callar','omitir','renunciar'],
+ e:'Del germánico skirmjan, «proteger, defender». Primero se esgrimieron espadas; luego aprendimos a esgrimir palabras.',
+ x:{t:'dato',txt:'Comparte origen con «esgrima»: el arte de manejar la espada prestó su nombre al arte de manejar argumentos.'},
+ comp:'Durante el debate supo ___ datos convincentes.',
+ mej:['Volvió a [usar] el mismo argumento de siempre.','esgrimir'],
+ vf:[['Esgrimió un argumento sólido para convencer al jurado.',true,'Usó el argumento como arma.'],['Para esgrimir una razón hay que quedarse callado.',false,'Esgrimir es sacar y usar, no callar.']]},
+
+{p:'desidia',c:'sust',d:'Falta de cuidado, de interés o de esfuerzo; negligencia.',
+ h:'Con esa desidia, la casa está hecha un desastre.',
+ f:'La desidia en el mantenimiento provocó la avería.',
+ ev:['dejadez','pereza','abandono'],s:['dejadez','negligencia','apatía','abandono'],a:['diligencia','esmero','celo'],
+ e:'Del latín desidia, de desidere, «quedarse sentado». La desidia es la silla de la que nunca nos levantamos.',
+ x:{t:'dato',txt:'Su contrario, «diligencia», viene del latín diligere, «amar, escoger»: el diligente hace las cosas con cariño.'},
+ comp:'La ___ de los responsables dejó el parque lleno de basura.',
+ mej:['Por pura [pereza], nadie arregló la gotera.','desidia'],
+ vf:[['Trabajó con tanta desidia que ganó el premio al empleado más esmerado.',false,'La desidia es lo opuesto al esmero.'],['La desidia acabó arruinando el viejo jardín.',true,'El abandono lo arruinó.']]},
+
+{p:'parsimonia',c:'sust',d:'Calma o lentitud al actuar; también, moderación en los gastos.',
+ h:'Se arregla con una parsimonia que nos hace llegar tarde siempre.',
+ f:'Conviene gestionar los recursos con parsimonia durante este trimestre.',
+ ev:['lentitud','calma','cachaza'],s:['calma','lentitud','flema','moderación'],a:['prisa','rapidez','derroche'],
+ e:'Del latín parsimonia, de parcere, «ahorrar». Quien actúa con parsimonia ahorra hasta los movimientos.',
+ x:{t:'dato',txt:'En ciencia existe el «principio de parsimonia», más conocido como la navaja de Ockham: la explicación más sencilla suele ser la mejor.'},
+ comp:'Removía el café con una ___ exasperante mientras todos esperábamos.',
+ mej:['Recogió sus cosas con mucha [calma], sin importarle la hora.','parsimonia'],
+ vf:[['Con gran parsimonia, salió corriendo a toda velocidad.',false,'La parsimonia es calma, no prisa.'],['El camarero sirvió el vino con parsimonia ceremoniosa.',true,'Con calma y lentitud.']]},
+
+{p:'ahínco',c:'sust',d:'Empeño, esfuerzo y tesón con que se hace o se busca algo.',
+ h:'Estudió con ahínco y aprobó con nota.',
+ f:'Agradecemos el ahínco con que el equipo ha trabajado este año.',
+ ev:['empeño','esfuerzo','ganas'],s:['empeño','tesón','esfuerzo','constancia'],a:['desgana','desidia','apatía'],
+ e:'De «ahincar», hincar con fuerza: clavar algo en la tierra para que no se mueva. El ahínco es la estaca de la voluntad.',
+ x:{t:'dato',txt:'Es de la familia de «hincar los codos», la expresión para estudiar con esfuerzo.'},
+ comp:'Entrenó con tanto ___ que ganó la carrera.',
+ mej:['Defendió el proyecto con mucho [empeño].','ahínco'],
+ vf:[['Trabajó con ahínco: apenas hizo nada en todo el día.',false,'El ahínco es esfuerzo constante.'],['Buscó con ahínco una solución y la encontró.',true,'Con empeño y tesón.']]},
+];
+
+/* ===================== Utilidades ===================== */
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const norm = s => String(s).normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
+const rnd = n => Math.floor(Math.random()*n);
+const shuffle = a => { a=a.slice(); for(let i=a.length-1;i>0;i--){const j=rnd(i+1);[a[i],a[j]]=[a[j],a[i]];} return a; };
+const fx = n => Math.round(n*10)/10;
+function rng(seed){ return function(){ seed|=0; seed=seed+0x6D2B79F5|0; let t=Math.imul(seed^seed>>>15,1|seed); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; }
+const CAT = {adj:'adjetivo', verbo:'verbo', sust:'sustantivo'};
+PALABRAS.forEach((w,i) => { w.id = norm(w.p); w.n = i+1; w.stem = stemOf(w); });
+const BYID = Object.fromEntries(PALABRAS.map(w => [w.id, w]));
+function stemOf(w){ const b=norm(w.p); const cut = w.c==='verbo' ? 2 : 1; return b.length-cut >= 4 ? b.slice(0, b.length-cut) : b; }
+/* ¿Comparten sinónimos? (evita distractores ambiguos) */
+function clash(a,b){ return a.s.some(x => b.s.includes(x)) || a.s.includes(b.p) || b.s.includes(a.p); }
+/* resalta la palabra (y sus formas) dentro de un texto */
+function markWord(text, w, cls='u'){
+  return esc(text).replace(/[\p{L}]+/gu, tok => norm(tok).startsWith(w.stem) ? `<mark class="${cls}">${tok}</mark>` : tok);
+}
+
+/* ===================== Fechas ===================== */
+const DAY = 86400000;
+const dayNum = (d=new Date()) => Math.floor(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())/DAY);
+const today = () => dayNum();
+
+/* ===================== Estado (localStorage) ===================== */
+const KEY = 'lexico.v1', MAXV = 5, REGEN = 20*60*1000, MAXLV = 6;
+const INTERVALO = [0,1,2,4,7,15,30]; // días hasta el próximo repaso según nivel 1..6
+const NIVELES = [
+  {n:'Aprendiz',  xp:0,    d:'Recoges palabras como quien recoge piedras bonitas en la playa.'},
+  {n:'Escriba',   xp:250,  d:'Ya las copias con buena letra y empiezas a usarlas.'},
+  {n:'Orador',    xp:700,  d:'Las dices en voz alta y suenan como si siempre hubieran sido tuyas.'},
+  {n:'Poeta',     xp:1500, d:'Las haces cantar: eliges la palabra exacta sin buscarla.'},
+  {n:'Académico', xp:2800, d:'Limpias, fijas y das esplendor. El idioma te debe una.'}
+];
+const DEF = () => ({v:1, xp:0, streak:0, best:0, lastDay:null, days:[], lives:MAXV, livesTs:Date.now(),
+  words:{}, lastNew:null, lessons:0, ok:0, ko:0, sound:true, intensivo:false});
+let S = load();
+function load(){
+  try{ const raw = localStorage.getItem(KEY); if(!raw) return DEF();
+       const s = JSON.parse(raw); return Object.assign(DEF(), s && typeof s==='object' ? s : {}); }
+  catch(e){ return DEF(); }
+}
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){ /* almacenamiento no disponible */ } }
+
+function refreshLives(){
+  if(S.lives >= MAXV){ S.lives = MAXV; S.livesTs = Date.now(); return; }
+  const n = Math.floor((Date.now() - S.livesTs)/REGEN);
+  if(n > 0){ S.lives = Math.min(MAXV, S.lives + n); S.livesTs = S.lives >= MAXV ? Date.now() : S.livesTs + n*REGEN; save(); }
+}
+function nextLifeIn(){ return Math.max(0, REGEN - (Date.now() - S.livesTs)); }
+function loseLife(){ refreshLives(); if(S.lives >= MAXV) S.livesTs = Date.now(); S.lives = Math.max(0, S.lives-1); save(); }
+
+function levelIdx(xp=S.xp){ let i=0; NIVELES.forEach((l,k)=>{ if(xp>=l.xp) i=k; }); return i; }
+function streakNow(){ const t=today(); return (S.lastDay===t || S.lastDay===t-1) ? S.streak : 0; }
+
+const learnedList = () => PALABRAS.filter(w => S.words[w.id]);
+const dueWords = () => learnedList().filter(w => S.words[w.id].due <= today())
+  .sort((a,b) => S.words[a.id].due - S.words[b.id].due || S.words[a.id].lv - S.words[b.id].lv);
+const nextNew = () => PALABRAS.find(w => !S.words[w.id]);
+function newAvailable(){ const w = nextNew(); if(!w) return null; return (S.intensivo || S.lastNew !== today()) ? w : null; }
+function todaysWord(){ const t=today(); const l = learnedList().filter(w => S.words[w.id].learned === t); return l[l.length-1] || null; }
+
+/* ===================== Sonido (Web Audio, sutil) ===================== */
+let AC = null;
+function ac(){ try{ if(!AC){ const C = window.AudioContext || window.webkitAudioContext; if(C) AC = new C(); } if(AC && AC.state==='suspended') AC.resume(); }catch(e){} return AC; }
+function tone(freq, t0, dur, type='sine', vol=.05){
+  const a = ac(); if(!a) return;
+  const o = a.createOscillator(), g = a.createGain(), t = a.currentTime + t0;
+  o.type = type; o.frequency.setValueAtTime(freq, t);
+  g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(vol, t+.015); g.gain.exponentialRampToValueAtTime(.0001, t+dur);
+  o.connect(g); g.connect(a.destination); o.start(t); o.stop(t+dur+.05);
+}
+const SND = {
+  ok(){ tone(784,0,.16); tone(1175,.08,.32,'sine',.045); },
+  ko(){ tone(220,0,.22,'triangle',.06); tone(174,.09,.32,'triangle',.05); },
+  tap(){ tone(1320,0,.05,'sine',.018); },
+  match(){ tone(988,0,.12,'sine',.035); },
+  win(){ [523,659,784,1047].forEach((f,i) => tone(f, i*.11, .45, 'sine', .05)); tone(1568,.52,.7,'sine',.025); }
+};
+function play(k){ if(S.sound) try{ SND[k](); }catch(e){} }
+function buzz(ms){ try{ navigator.vibrate && navigator.vibrate(ms); }catch(e){} }
+
+/* ===================== Arte SVG generativo ===================== */
+/* Curva suave (Catmull-Rom → Bézier) */
+function smooth(pts, closed){
+  const n = pts.length, get = i => closed ? pts[(i+n)%n] : pts[Math.max(0, Math.min(n-1, i))];
+  let d = `M${fx(pts[0][0])},${fx(pts[0][1])}`;
+  for(let i=0; i < (closed ? n : n-1); i++){
+    const p0=get(i-1), p1=get(i), p2=get(i+1), p3=get(i+2);
+    d += `C${fx(p1[0]+(p2[0]-p0[0])/6)},${fx(p1[1]+(p2[1]-p0[1])/6)} ${fx(p2[0]-(p3[0]-p1[0])/6)},${fx(p2[1]-(p3[1]-p1[1])/6)} ${fx(p2[0])},${fx(p2[1])}`;
+  }
+  return d + (closed ? 'Z' : '');
+}
+/* Garabato a lápiz que rodea algo (2 vueltas y pico) */
+function loopPath(w, h, seed=1, turns=2.15){
+  const r = rng(seed), pts = [], steps = Math.round(turns*26), a0 = -2.1 + r()*.5;
+  for(let i=0;i<=steps;i++){
+    const a = a0 + i/26*Math.PI*2, drift = 1 + (r()-.5)*.07 + Math.sin(i*.7)*.02;
+    pts.push([w/2 + Math.cos(a)*(w/2-4)*drift, h/2 + Math.sin(a)*(h/2-4)*(drift + (r()-.5)*.05)]);
+  }
+  return smooth(pts, false);
+}
+function loopSVG(seed=1, draw=true){
+  return `<svg viewBox="0 0 200 80" preserveAspectRatio="none" aria-hidden="true"><path class="pencil${draw?' draw':''}" pathLength="1" d="${loopPath(200,80,seed)}"/></svg>`;
+}
+/* Línea a lápiz serpenteante */
+function wigglePath(pts, seed=3, amp=6){
+  const r = rng(seed), out = [];
+  for(let i=0;i<pts.length-1;i++){
+    const [x1,y1]=pts[i], [x2,y2]=pts[i+1];
+    for(let k=0;k<4;k++){ const t=k/4; out.push([x1+(x2-x1)*t+(r()-.5)*amp, y1+(y2-y1)*t+(r()-.5)*amp]); }
+  }
+  out.push(pts[pts.length-1]);
+  return smooth(out, false);
+}
+/* Octaedro con trama de grabado */
+function polySVG(cls=''){
+  const T=[60,6], B=[58,150], L=[8,74], F=[50,92], R=[112,80], K=[74,60];
+  const P = p => p.join(',');
+  return `<svg class="${cls}" viewBox="0 0 120 156" aria-hidden="true">
+    <g stroke="#111" stroke-width="1.6" stroke-linejoin="round">
+      <polygon points="${P(T)} ${P(L)} ${P(F)}" fill="url(#hA)"/>
+      <polygon points="${P(T)} ${P(F)} ${P(R)}" fill="url(#hE)"/>
+      <polygon points="${P(B)} ${P(L)} ${P(F)}" fill="url(#hC)"/>
+      <polygon points="${P(B)} ${P(F)} ${P(R)}" fill="url(#hD)"/>
+      <polyline points="${P(L)} ${P(K)} ${P(R)}" fill="none" stroke-dasharray="2 3" stroke-width="1" opacity=".6"/>
+      <line x1="${T[0]}" y1="${T[1]}" x2="${K[0]}" y2="${K[1]}" stroke-dasharray="2 3" stroke-width="1" opacity=".6"/>
+    </g></svg>`;
+}
+/* Disco de vinilo (entero o media luna) */
+function discSVG(cls='', half=false){
+  let grooves = '';
+  for(let r=38; r<96; r+=2.6) grooves += `<circle cx="100" cy="100" r="${fx(r)}" fill="none" stroke="#2e2e2e" stroke-width=".55"/>`;
+  const clip = half ? `<clipPath id="dh"><rect x="100" y="0" width="100" height="200"/></clipPath>` : '';
+  return `<svg class="${cls}" viewBox="0 0 200 200" aria-hidden="true">${clip}<g ${half?'clip-path="url(#dh)"':''}>
+    <circle cx="100" cy="100" r="98" fill="#0d0d0d"/>${grooves}
+    <path d="M100 100 L170 30 A99 99 0 0 1 192 70Z" fill="#fff" opacity=".07"/>
+    <path d="M100 100 L30 170 A99 99 0 0 1 8 130Z" fill="#fff" opacity=".05"/>
+    <circle cx="100" cy="100" r="33" fill="#E9E9E7"/><circle cx="100" cy="100" r="33" fill="url(#hE)" opacity=".35"/>
+    <circle cx="100" cy="100" r="4" fill="#0d0d0d"/></g></svg>`;
+}
+/* Mancha de tinta + salpicaduras */
+function blotSVG(cls='', seed=5){
+  const r = rng(seed), pts = [], n = 22;
+  for(let i=0;i<n;i++){ const a = i/n*Math.PI*2, k = 34 + r()*22 + (i%5===0 ? r()*18 : 0); pts.push([100+Math.cos(a)*k*1.15, 100+Math.sin(a)*k]); }
+  let dots = '';
+  for(let i=0;i<34;i++){ const a=r()*Math.PI*2, d=70+r()*40; dots += `<circle cx="${fx(100+Math.cos(a)*d*1.1)}" cy="${fx(100+Math.sin(a)*d*.9)}" r="${fx(.6+r()*r()*4.5)}"/>`; }
+  return `<svg class="${cls}" viewBox="0 0 200 200" aria-hidden="true"><g fill="#0f0f0f"><path filter="url(#rough)" d="${smooth(pts,true)}"/>${dots}</g></svg>`;
+}
+/* Fragmento negro de bordes rotos (carboncillo) */
+function shardSVG(cls='', seed=8){
+  const r = rng(seed), base = [[30,8],[96,0],[84,190],[4,206]], pts = [];
+  for(let i=0;i<4;i++){ const a=base[i], b=base[(i+1)%4]; for(let k=0;k<9;k++){ const t=k/9; pts.push([a[0]+(b[0]-a[0])*t+(r()-.5)*5, a[1]+(b[1]-a[1])*t+(r()-.5)*5]); } }
+  return `<svg class="${cls}" viewBox="-6 -6 112 220" aria-hidden="true"><polygon filter="url(#charcoal)" fill="#101010" points="${pts.map(p=>fx(p[0])+','+fx(p[1])).join(' ')}"/></svg>`;
+}
+/* Salpicadura suelta */
+function spatterSVG(cls='', seed=11, n=26){
+  const r = rng(seed); let d='';
+  for(let i=0;i<n;i++) d += `<circle cx="${fx(r()*100)}" cy="${fx(r()*100)}" r="${fx(.4+r()*r()*2.4)}"/>`;
+  return `<svg class="${cls}" viewBox="0 0 100 100" aria-hidden="true"><g fill="#111">${d}</g></svg>`;
+}
+/* Ojo grabado (trazos de buril generados) */
+function eyeSVG(cls='', seed=21){
+  const r = rng(seed);
+  const q = (P0,P1,P2,t) => [(1-t)*(1-t)*P0[0]+2*(1-t)*t*P1[0]+t*t*P2[0], (1-t)*(1-t)*P0[1]+2*(1-t)*t*P1[1]+t*t*P2[1]];
+  const qt = (P0,P1,P2,t) => [2*(1-t)*(P1[0]-P0[0])+2*t*(P2[0]-P1[0]), 2*(1-t)*(P1[1]-P0[1])+2*t*(P2[1]-P1[1])];
+  const A=[22,98], U=[150,8], Z=[282,92], D=[150,170];
+  let s = '';
+  // ceja: trazos cortos inclinados
+  const B0=[18,52], B1=[140,-14], B2=[292,40];
+  for(let i=0;i<150;i++){
+    const t = r(), p = q(B0,B1,B2,t), tg = qt(B0,B1,B2,t), ang = Math.atan2(tg[1],tg[0]) - .55 - r()*.25;
+    const thick = Math.sin(Math.PI*Math.min(1,t*1.15)); const len = 8 + thick*16*r() + 6;
+    const ox = (r()-.5)*14*thick, oy = (r()-.2)*16*thick;
+    s += `<path d="M${fx(p[0]+ox)},${fx(p[1]+oy)} l${fx(Math.cos(ang)*len)},${fx(Math.sin(ang)*len)}" stroke-width="${fx(.6+r()*.9)}"/>`;
+  }
+  // pliegue del párpado
+  for(let k=0;k<7;k++){ const off=k*3.2; s += `<path d="M${30+k*2},${86-off*.2} Q150,${-6-off} ${276-k*2},${80-off*.2}" fill="none" stroke-width="${fx(1.5-k*.16)}" opacity="${fx(1-k*.1)}"/>`; }
+  // pestañas superiores
+  for(let i=0;i<40;i++){
+    const t = .06 + i/40*.9, p = q(A,U,Z,t), tg = qt(A,U,Z,t); const nrm = Math.atan2(tg[1],tg[0]) - Math.PI/2;
+    const lean = (t-.35)*.9, L = 10 + Math.sin(Math.PI*t)*16 + r()*5, a2 = nrm + lean;
+    const cx = p[0]+Math.cos(a2)*L*.5 + 3, cy = p[1]+Math.sin(a2)*L*.5 - 2;
+    s += `<path d="M${fx(p[0])},${fx(p[1]+4)} Q${fx(cx)},${fx(cy)} ${fx(p[0]+Math.cos(a2)*L+6*(t-.2))},${fx(p[1]+Math.sin(a2)*L)}" fill="none" stroke-width="${fx(1+r()*.8)}"/>`;
+  }
+  // iris: rayos
+  let iris = '';
+  for(let i=0;i<150;i++){ const a = i/150*Math.PI*2 + r()*.02, r1 = 15 + r()*3, r2 = 32 + r()*10;
+    iris += `<path d="M${fx(150+Math.cos(a)*r1)},${fx(90+Math.sin(a)*r1)} L${fx(150+Math.cos(a)*r2)},${fx(90+Math.sin(a)*r2)}" stroke-width="${fx(.5+r()*.7)}"/>`; }
+  // sombra bajo el párpado (líneas horizontales recortadas)
+  let shade = '';
+  for(let y=18;y<64;y+=3.1) shade += `<path d="M10,${fx(y)} L290,${fx(y+2)}" stroke-width="${fx(1.4-(y-18)/50)}" opacity="${fx(1-(y-18)/52)}"/>`;
+  // pestañas inferiores y bolsa
+  let low = '';
+  for(let i=0;i<22;i++){ const t=.15+i/22*.75, p=q(A,D,Z,t); low += `<path d="M${fx(p[0])},${fx(p[1]-2)} l${fx((t-.5)*6)},${fx(5+r()*5)}" stroke-width=".8"/>`; }
+  for(let k=0;k<4;k++) low += `<path d="M${60+k*6},${150+k*5} Q150,${186+k*5} ${250-k*6},${140+k*5}" fill="none" stroke-width=".7" opacity="${fx(.7-k*.14)}"/>`;
+  return `<svg class="${cls}" viewBox="0 -20 300 220" aria-hidden="true"><defs><clipPath id="eyeC${seed}"><path d="M${A} Q${U} ${Z} Q${D} ${A}Z"/></clipPath></defs>
+    <g stroke="#111" stroke-linecap="round" fill="none">${s}</g>
+    <path d="M${A} Q${U} ${Z} Q${D} ${A}Z" fill="#F2F2EF"/>
+    <g clip-path="url(#eyeC${seed})">
+      <g stroke="#111" fill="none">${shade}</g>
+      <circle cx="150" cy="90" r="44" fill="#F2F2EF"/>
+      <g stroke="#111" stroke-linecap="round">${iris}</g>
+      <circle cx="150" cy="90" r="43" fill="none" stroke="#111" stroke-width="3.2"/>
+      <circle cx="150" cy="90" r="16" fill="#0d0d0d"/>
+      <circle cx="139" cy="78" r="6.5" fill="#fff"/>
+      <g stroke="#111" fill="none">${shade.replace(/opacity="[^"]*"/g,'opacity=".55"')}</g>
+    </g>
+    <path d="M${A} Q${U} ${Z}" fill="none" stroke="#111" stroke-width="4"/>
+    <path d="M${A} Q${D} ${Z}" fill="none" stroke="#111" stroke-width="1.6"/>
+    <g stroke="#111" stroke-linecap="round" fill="none">${low}</g></svg>`;
+}
+/* Pluma de escribir grabada */
+function quillSVG(cls='', seed=31){
+  const r = rng(seed); const P0=[24,290], P1=[70,120], P2=[176,8];
+  const q=t=>[(1-t)*(1-t)*P0[0]+2*(1-t)*t*P1[0]+t*t*P2[0],(1-t)*(1-t)*P0[1]+2*(1-t)*t*P1[1]+t*t*P2[1]];
+  const qt=t=>[2*(1-t)*(P1[0]-P0[0])+2*t*(P2[0]-P1[0]),2*(1-t)*(P1[1]-P0[1])+2*t*(P2[1]-P1[1])];
+  let b='';
+  for(let i=0;i<120;i++){
+    const t = .2 + i/120*.78, p = q(t), tg = qt(t), ang = Math.atan2(tg[1],tg[0]);
+    const prof = Math.sin(Math.PI*Math.min(1,(t-.2)/.78)) ** .7;
+    [1,-1].forEach(side => {
+      const L = (side>0?34:24)*prof*(.85+r()*.25) + 3, a2 = ang + side*(.55+r()*.12);
+      const ex = p[0]+Math.cos(a2)*L, ey = p[1]+Math.sin(a2)*L;
+      const cx = p[0]+Math.cos(a2-side*.25)*L*.55, cy = p[1]+Math.sin(a2-side*.25)*L*.55;
+      if(r() > .06) b += `<path d="M${fx(p[0])},${fx(p[1])} Q${fx(cx)},${fx(cy)} ${fx(ex)},${fx(ey)}" stroke-width="${fx(.45+r()*.6)}"/>`;
+    });
+  }
+  const sp = q(.2);
+  return `<svg class="${cls}" viewBox="0 0 220 310" aria-hidden="true"><g stroke="#111" fill="none" stroke-linecap="round">${b}
+    <path d="M${P0} Q${P1} ${P2}" stroke-width="2.6"/></g>
+    <path d="M${fx(sp[0]-3)},${fx(sp[1])} L${P0[0]-6},${P0[1]-6} L${P0[0]-2},${P0[1]+12} L${P0[0]+4},${P0[1]-4}Z" fill="#111"/></svg>`;
+}
+/* Marcas a lápiz: check y cruz */
+const CHECK = `<svg class="mk" viewBox="0 0 40 40"><path class="pencil draw" pathLength="1" d="M6 22 Q12 26 16 33 Q22 18 36 5"/></svg>`;
+const CROSS = `<svg class="mk" viewBox="0 0 40 40"><path class="pencil draw" pathLength="1" d="M8 8 Q20 21 33 34 M33 7 Q19 20 7 33"/></svg>`;
+
+/* Iconos */
+const IC = {
+  flame:`<svg viewBox="0 0 24 24"><path d="M12 2c1 4 6 6 6 12a6 6 0 0 1-12 0c0-3 2-5 3-6 0 2 1 3 2 3 0-4-1-6 1-9z" fill="#111"/><path d="M12 13c1 1.4 2.6 2.4 2.6 4.3a2.6 2.6 0 0 1-5.2 0c0-1.4.9-2.3 1.4-2.8.1.9.5 1.3 1 1.3.1-1.2-.3-1.9.2-2.8z" fill="#FFE600"/></svg>`,
+  drop:`<svg viewBox="0 0 24 24"><path d="M12 2.5S5 10.5 5 15.2a7 7 0 0 0 14 0C19 10.5 12 2.5 12 2.5z" fill="#111"/><path d="M8.7 15.4a3.4 3.4 0 0 0 2.6 3.2" stroke="#FFE600" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg>`,
+  dropEmpty:`<svg viewBox="0 0 24 24"><path d="M12 2.5S5 10.5 5 15.2a7 7 0 0 0 14 0C19 10.5 12 2.5 12 2.5z" fill="none" stroke="#111" stroke-width="2" stroke-dasharray="3 2"/></svg>`,
+  xp:`<svg viewBox="0 0 24 24"><path d="M12 2l2.6 6.6 7 .5-5.4 4.5 1.8 6.9L12 16.8 6 20.5l1.8-6.9L2.4 9.1l7-.5z" fill="#FFE600" stroke="#111" stroke-width="1.8" stroke-linejoin="round"/></svg>`,
+  x:`<svg viewBox="0 0 24 24"><path class="pencil" d="M5 5 Q12 12 19 19 M19 5 Q12 12 5 19" style="stroke-width:2.6"/></svg>`,
+  hoy:`<svg viewBox="0 0 28 28" fill="none" stroke="#111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 14 Q14 3 25 14 Q14 25 3 14Z"/><circle cx="14" cy="14" r="4.2"/><circle class="tdot" cx="14" cy="14" r="1.6" fill="#111" stroke="none"/></svg>`,
+  lex:`<svg viewBox="0 0 28 28" fill="none" stroke="#111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6c4-1.5 7-1 10 1.5C17 5 20 4.5 24 6v16c-4-1.5-7-1-10 1.5C11 21 8 20.5 4 22z"/><path d="M14 7.5v16"/></svg>`,
+  perfil:`<svg viewBox="0 0 28 28" fill="none" stroke="#111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3 L22 10 L14 25 L6 10Z"/><path d="M6 10h16M14 3v22"/></svg>`,
+  ok:`<svg class="ic" viewBox="0 0 40 40"><path class="pencil" style="stroke-width:3" d="M6 22 Q12 26 16 33 Q22 18 36 5"/></svg>`,
+  no:`<svg class="ic" viewBox="0 0 40 40"><path class="pencil" style="stroke-width:3" d="M8 8 Q20 21 33 34 M33 7 Q19 20 7 33"/></svg>`
+};
+
+/* Resaltador amarillo con bordes de brocha seca (SVG en data URI) */
+function hlURI(seed, fy=.13, dry=.9){
+  const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='600' height='140' viewBox='0 0 600 140' preserveAspectRatio='none'><filter id='f' x='-4%' y='-25%' width='108%' height='150%'><feTurbulence type='fractalNoise' baseFrequency='0.012 ${fy}' numOctaves='3' seed='${seed}' result='n'/><feDisplacementMap in='SourceGraphic' in2='n' scale='26' xChannelSelector='R' yChannelSelector='G' result='d'/><feTurbulence type='fractalNoise' baseFrequency='0.02 ${dry}' numOctaves='2' seed='${seed+5}' result='g'/><feColorMatrix in='g' type='matrix' values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -9 5.6' result='m'/><feComposite in='d' in2='m' operator='in'/></filter><rect x='16' y='18' width='568' height='104' fill='#FFE600' filter='url(#f)'/></svg>`;
+  return `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
+}
+function grainURI(){
+  const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 .7 -.2'/></filter><rect width='100%' height='100%' filter='url(#n)'/></svg>`;
+  return `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
+}
+(function initTextures(){
+  const r = document.documentElement.style;
+  r.setProperty('--hlA', hlURI(3, .13, .9)); r.setProperty('--hlB', hlURI(8, .2, 1.1)); r.setProperty('--hlC', hlURI(14, .1, .75));
+  r.setProperty('--grain', grainURI());
+})();
+
+/* ===================== Render: cabecera y pestañas ===================== */
+let TAB = 'hoy', FILTRO = 'todas', BUSCA = '';
+function renderTop(){
+  refreshLives();
+  const st = streakNow();
+  $('#top').innerHTML = `<div class="brand">Léxico</div>
+    <span class="stat${st?'':' off'}" title="Racha de días">${IC.flame}${st}</span>
+    <span class="stat" title="Puntos de experiencia">${IC.xp}${S.xp}</span>
+    <span class="stat${S.lives?'':' off'}" title="Tinta (vidas)">${IC.drop}${S.lives}</span>`;
+}
+function renderTabs(){
+  const t = (k,l) => `<button class="tab${TAB===k?' on':''}" data-a="tab" data-t="${k}" aria-current="${TAB===k?'page':'false'}">${IC[k]}<span>${l}</span></button>`;
+  $('#tabs').innerHTML = `<div class="tabs-in">${t('hoy','Hoy')}${t('lex','Mi léxico')}${t('perfil','Perfil')}</div>`;
+}
+function render(){
+  renderTop(); renderTabs();
+  const v = $('#view');
+  v.innerHTML = `<div class="view">${TAB==='hoy' ? vHoy() : TAB==='lex' ? vLex() : vPerfil()}</div>`;
+  requestAnimationFrame(() => setTimeout(() => document.querySelectorAll('#view .hl').forEach(e => e.classList.add('on')), 120));
+  if(TAB==='lex'){ const s=$('#busca'); if(s){ s.value = BUSCA; s.oninput = e => { BUSCA = e.target.value; const l=$('#wlist'); if(l) l.innerHTML = lexList(); }; } }
+}
+
+/* ===================== Vista: Hoy ===================== */
+function vHoy(){
+  const t = today(), nw = newAvailable(), due = dueWords(), learned = learnedList();
+  let w = nw || todaysWord(), state = nw ? 'new' : (w ? 'done' : 'none');
+  if(!w && learned.length){ w = learned[t % learned.length]; state = 'recall'; }
+  const fecha = new Date().toLocaleDateString('es', {weekday:'long', day:'numeric', month:'long'});
+  const L = levelIdx(), cur = NIVELES[L], nxt = NIVELES[L+1];
+  const pct = nxt ? Math.round((S.xp-cur.xp)/(nxt.xp-cur.xp)*100) : 100;
+
+  let hero = '';
+  if(w){
+    const tag = state==='new' ? 'Palabra del día' : state==='done' ? 'Aprendida hoy' : 'Para recordar';
+    hero = `<section class="hero">
+      <div class="hero-date"><span class="kicker">${tag}</span><span class="kicker">${esc(fecha)}</span></div>
+      <div class="hero-word"><h1><span class="hl">${esc(w.p)}</span></h1>
+        <span class="pos">${CAT[w.c]}${loopSVG(w.n*7+1)}</span></div>
+      <div class="hero-art">
+        ${eyeSVG('', 21).replace('<svg ', '<svg style="left:-4%;top:6px;width:60%;transform:rotate(-5deg)" ')}
+        ${discSVG('', true).replace('<svg ', '<svg style="left:46%;top:8px;width:52%" ')}
+        ${shardSVG('', w.n+3).replace('<svg ', '<svg style="left:50%;top:30px;width:14%;transform:rotate(9deg)" ')}
+        ${polySVG().replace('<svg ', '<svg style="left:8%;bottom:-6px;width:17%;transform:rotate(-8deg)" ')}
+        ${spatterSVG('', w.n, 30).replace('<svg ', '<svg style="left:26%;bottom:-10px;width:30%" ')}
+        <svg style="left:0;top:0;width:100%;height:100%;overflow:visible" viewBox="0 0 400 210" preserveAspectRatio="none" aria-hidden="true"><path class="pencil draw" pathLength="1" d="${wigglePath([[330,-36],[350,10],[300,60],[352,120],[330,190]], w.n, 9)}"/></svg>
+      </div>
+      <p class="hero-def">${esc(w.d)}</p>
+    </section>`;
+  } else {
+    hero = `<section class="hero"><div class="hero-date"><span class="kicker">Léxico</span><span class="kicker">${esc(fecha)}</span></div>
+      <p class="hero-def" style="margin-top:20px">Ya conoces todas las palabras del cuaderno. Sigue repasando para dominarlas.</p></section>`;
+  }
+
+  let cta = '';
+  if(state==='new') cta += `<button class="btn primary" data-a="start-new">Aprender «${esc(w.p)}» <span class="arr">→</span></button>`;
+  if(due.length) cta += `<button class="btn${state==='new'?'':' yellow'}" data-a="start-review">Repasar ${due.length} ${due.length===1?'palabra':'palabras'}</button>`;
+  else if(state!=='new' && learned.length) cta += `<button class="btn yellow" data-a="start-practice">Práctica libre</button>`;
+
+  const up = nextNew();
+  const teaser = (state==='done' && up) ? `<div class="teaser">${polySVG().replace('<svg ','<svg style="width:40px;flex:none" ')}
+     <div><div class="kicker">Mañana</div><b>${esc(up.p[0])}${' _'.repeat(up.p.length-1)}</b></div></div>` : '';
+
+  // semana
+  const now = new Date(); const letras = ['D','L','M','X','J','V','S']; let week='';
+  for(let i=6;i>=0;i--){ const d = new Date(now); d.setDate(now.getDate()-i); const n = dayNum(d);
+    week += `<div class="wd${S.days.includes(n)?' on':''}${i===0?' today':''}"><i></i>${letras[d.getDay()]}</div>`; }
+
+  return `${hero}${cta}${teaser}
+    <div class="card blk"><div class="row"><div style="flex:1"><div class="kicker">Tu nivel</div><div class="lvname">${cur.n}</div></div>
+      <div style="text-align:right"><div class="big-n">${S.xp}</div><div class="kicker">XP</div></div></div>
+      <div class="bar"><i class="${pct>=100?'full':''}" style="width:${Math.max(3,pct)}%"></i></div>
+      <p class="mute" style="margin-top:8px;font-size:.88rem">${nxt ? `${nxt.xp - S.xp} XP para <b style="color:#111">${nxt.n}</b>` : 'Has llegado a lo más alto.'}</p></div>
+    <div class="card"><div class="row"><div style="flex:1"><div class="kicker">Racha</div><div class="lvname">${streakNow()} ${streakNow()===1?'día':'días'}</div></div>${IC.flame.replace('<svg ','<svg style="width:42px;height:42px" ')}</div>
+      <div class="week">${week}</div></div>`;
+}
+
+/* ===================== Vista: Mi léxico ===================== */
+function nextReviewTxt(r){ const d = r.due - today(); return d<=0 ? 'repaso hoy' : d===1 ? 'repaso mañana' : `repaso en ${d} días`; }
+function lexList(){
+  const t = today(), q = norm(BUSCA.trim());
+  let l = learnedList();
+  if(FILTRO==='repasar') l = l.filter(w => S.words[w.id].due <= t);
+  if(FILTRO==='dominadas') l = l.filter(w => S.words[w.id].lv >= MAXLV);
+  if(q) l = l.filter(w => norm(w.p).includes(q) || norm(w.d).includes(q));
+  if(!l.length) return `<div class="empty">${blotSVG('',4).replace('<svg ','<svg style="width:110px" ')}<p style="margin-top:10px">${learnedList().length ? 'Nada por aquí con ese filtro.' : 'Aún no has aprendido ninguna palabra. Empieza por la de hoy.'}</p></div>`;
+  return l.map(w => { const r = S.words[w.id];
+    const segs = Array.from({length:MAXLV}, (_,i) => `<i class="${i < r.lv ? (r.lv>=MAXLV ? 'c':'f') : ''}"></i>`).join('');
+    const tag = r.lv >= MAXLV ? '<span class="badge y">Dominada</span>' : (r.due <= t ? '<span class="badge k">Repasar</span>' : '');
+    return `<button class="witem" data-a="ficha" data-id="${w.id}"><div class="w">${esc(w.p)}${tag}</div><div class="d">${esc(w.d)}</div>
+      <div class="segs" aria-label="Nivel ${r.lv} de ${MAXLV}">${segs}</div><div class="wmeta"><span>Nivel ${r.lv}/${MAXLV}</span><span>${r.lv>=MAXLV?'¡en tu léxico para siempre!':nextReviewTxt(r)}</span></div></button>`;
+  }).join('');
+}
+function vLex(){
+  const l = learnedList(), dom = l.filter(w => S.words[w.id].lv >= MAXLV).length, pend = PALABRAS.length - l.length;
+  const f = (k,t) => `<button class="chip${FILTRO===k?' on':''}" data-a="filtro" data-f="${k}">${t}</button>`;
+  return `<div class="ph"><h1>Mi <span class="hl c">léxico</span></h1><p>${l.length} ${l.length===1?'palabra aprendida':'palabras aprendidas'} · ${dom} ${dom===1?'dominada':'dominadas'}</p></div>
+    <div class="chips">${f('todas','Todas')}${f('repasar','Por repasar')}${f('dominadas','Dominadas')}</div>
+    <input id="busca" class="search" type="search" placeholder="Buscar en tu léxico…" aria-label="Buscar palabra" autocomplete="off">
+    <div class="wlist" id="wlist">${lexList()}</div>
+    ${pend ? `<div class="witem locked blk"><div class="w">? ? ?</div><div class="d" style="-webkit-line-clamp:3">Te ${pend===1?'espera':'esperan'} ${pend} ${pend===1?'palabra':'palabras'} por descubrir. Una nueva cada día.</div></div>` : ''}`;
+}
+
+/* ===================== Vista: Perfil ===================== */
+function vPerfil(){
+  const L = levelIdx(), acc = (S.ok+S.ko) ? Math.round(S.ok/(S.ok+S.ko)*100) : 0;
+  const ladder = NIVELES.map((n,i) => `<div class="rung${i===L?' cur':''}${i>L?' lock':''}"><div class="n">${i+1}</div><div><h3>${n.n}</h3><p>${n.d}</p><p class="mute" style="font-size:.76rem;font-weight:800;margin-top:2px">${n.xp} XP</p></div></div>`).join('');
+  refreshLives();
+  const regen = S.lives < MAXV ? `Próxima gota de tinta en ${Math.ceil(nextLifeIn()/60000)} min.` : 'Tintero lleno.';
+  return `<div class="ph"><h1>Tu <span class="hl b">cuaderno</span></h1><p>${NIVELES[L].n} · ${S.xp} XP</p></div>
+    <div class="stats">
+      <div class="card"><small>Racha actual</small><div class="big-n">${streakNow()}</div></div>
+      <div class="card"><small>Mejor racha</small><div class="big-n">${S.best}</div></div>
+      <div class="card"><small>Palabras</small><div class="big-n">${learnedList().length}<span style="font-size:1rem">/${PALABRAS.length}</span></div></div>
+      <div class="card"><small>Precisión</small><div class="big-n">${acc}%</div></div>
+    </div>
+    <div class="card blk row">${IC.drop.replace('<svg ','<svg style="width:34px;height:34px;flex:none" ')}<div><b>${S.lives} de ${MAXV} gotas de tinta</b><div class="mute" style="font-size:.88rem">${regen} Cada error gasta una gota.</div></div></div>
+    <h2 class="sec-t">Escalera de niveles</h2><div class="ladder">${ladder}</div>
+    <h2 class="sec-t">Ajustes</h2>
+    <button class="setting" data-a="toggle-sound"><span>Sonidos<small>Efectos sutiles al acertar y fallar</small></span><span class="sw${S.sound?' on':''}" role="switch" aria-checked="${S.sound}"></span></button>
+    <button class="setting" data-a="toggle-int"><span>Ritmo intensivo<small>Permite aprender más de una palabra nueva al día</small></span><span class="sw${S.intensivo?' on':''}" role="switch" aria-checked="${S.intensivo}"></span></button>
+    <button class="setting" data-a="reset"><span>Borrar mi progreso<small>Empieza el cuaderno desde cero</small></span><span aria-hidden="true">→</span></button>
+    <p class="credits">Las citas proceden de obras en dominio público (Cervantes, Quevedo, Garcilaso, Sor Juana Inés de la Cruz, Bécquer, Rubén Darío, Gracián y el Cantar de mio Cid). Tu progreso se guarda solo en este dispositivo.</p>`;
+}
+
+/* ===================== Ficha de palabra ===================== */
+function fichaHTML(w, withMine=true){
+  const x = w.x, r = S.words[w.id];
+  const quote = x.t==='cita'
+    ? `<section class="quote"><span class="qm" aria-hidden="true">“</span><h4>La dijo mejor…</h4><blockquote>${x.txt.split(' / ').map(esc).join('<br>')}</blockquote><cite>${esc(x.aut)} <span>· ${esc(x.obra)}</span></cite>${x.nota?`<p class="nota">${esc(x.nota)}</p>`:''}</section>`
+    : `<section class="quote"><span class="qm" aria-hidden="true">✶</span><h4>Dato curioso</h4><blockquote style="font-size:1.12rem">${esc(x.txt)}</blockquote></section>`;
+  const mine = (withMine && r && r.frases && r.frases.length) ? `<section class="f-sec"><h4>Tus frases</h4>${r.frases.slice(-3).map(f=>`<p class="myf">«${markWord(f,w)}»</p>`).join('')}</section>` : '';
+  return `<article class="ficha">
+    <div class="kicker">Nº ${w.n} · ${CAT[w.c]}</div>
+    <h2 class="f-word"><span class="hl">${esc(w.p)}</span></h2>
+    <p class="f-def">${esc(w.d)}</p>
+    <section class="f-sec"><h4>Dilo así</h4>
+      <div class="ej"><span class="tag">Hablado</span><p>«${markWord(w.h,w)}»</p></div>
+      <div class="ej"><span class="tag k">Escrito</span><p>«${markWord(w.f,w)}»</p></div></section>
+    <section class="f-sec"><h4>En vez de decir…</h4>
+      <p class="evd">${w.ev.map(v=>`<s>${esc(v)}</s>`).join(', ')}, di <mark class="u">${esc(w.p)}</mark>.</p>
+      <div class="chips" style="margin-top:4px"><span class="lbl">Sinónimos</span>${w.s.map(v=>`<span class="chip s">${esc(v)}</span>`).join('')}</div>
+      <div class="chips"><span class="lbl">Antónimos</span>${w.a.map(v=>`<span class="chip a">${esc(v)}</span>`).join('')}</div></section>
+    <section class="f-sec"><h4>De dónde viene</h4><p class="ety-t">${esc(w.e)}</p></section>
+    ${quote}${mine}</article>`;
+}
+function openModal(html, small=false){
+  const m = $('#modal'); m.hidden = false;
+  m.innerHTML = `<div class="modal" data-a="close-modal-bg"><div class="modal-in${small?' small':''}" role="dialog" aria-modal="true">${small?'':'<div class="grab"></div><button class="mclose" data-a="close-modal" aria-label="Cerrar">'+IC.x+'</button>'}${html}</div></div>`;
+  setTimeout(() => m.querySelectorAll('.hl').forEach(e => e.classList.add('on')), 250);
+}
+function closeModal(){ const m=$('#modal'); m.hidden = true; m.innerHTML=''; }
+function toast(html){ const t=$('#toast'); t.innerHTML = html; t.classList.add('show'); clearTimeout(toast._t); toast._t = setTimeout(()=>t.classList.remove('show'), 1800); }
+
+/* ===================== Generadores de ejercicios ===================== */
+function distract(w, n){
+  let pool = shuffle(PALABRAS.filter(x => x.id!==w.id && x.c===w.c && !clash(x,w)));
+  if(pool.length < n) pool = pool.concat(shuffle(PALABRAS.filter(x => x.id!==w.id && x.c!==w.c && !clash(x,w))));
+  return pool.slice(0, n);
+}
+function pairSet(w, prefer){
+  const set = [w];
+  const ok = x => !set.some(y => y.id===x.id || clash(x,y) || x.s[0]===y.s[0]);
+  for(const x of shuffle(prefer).concat(shuffle(PALABRAS))){ if(set.length>=4) break; if(ok(x)) set.push(x); }
+  return shuffle(set);
+}
+const EX = {
+  def:    w => ({tipo:'def', w, opts: shuffle([w, ...shuffle(PALABRAS.filter(x => x.id!==w.id && !clash(x,w))).slice(0,3)])}),
+  defInv: w => ({tipo:'defInv', w, opts: shuffle([w, ...distract(w,3)])}),
+  comp:   w => ({tipo:'comp', w, opts: shuffle([w, ...distract(w,3)])}),
+  mej:    w => ({tipo:'mej', w, opts: shuffle([w, ...distract(w,3)])}),
+  vf:     w => { const v = w.vf[rnd(w.vf.length)]; return {tipo:'vf', w, frase:v[0], ok:v[1], exp:v[2]}; },
+  pares:  (w, prefer) => ({tipo:'pares', w, ws: pairSet(w, prefer)}),
+  escribir: w => ({tipo:'escribir', w})
+};
+const REV_TYPES = ['def','defInv','comp','mej','vf'];
+
+/* ===================== Lección ===================== */
+let L = null;
+function startLesson(kind){
+  refreshLives();
+  if(S.lives <= 0){ noInk(); return; }
+  const learned = learnedList();
+  let items = [], nw = null, practice = false, words = [];
+  if(kind === 'new'){
+    nw = newAvailable(); if(!nw){ render(); return; }
+    const others = learned.filter(x => x.id!==nw.id);
+    items = [EX.def(nw), EX.comp(nw), EX.vf(nw), EX.mej(nw), EX.pares(nw, others)];
+    const due = dueWords();
+    if(due.length) items.splice(3, 0, EX[REV_TYPES[rnd(REV_TYPES.length)]](due[0]));
+    items.push(EX.escribir(nw));
+  } else {
+    words = dueWords().slice(0,4);
+    if(!words.length || kind==='practice'){ practice = kind==='practice' || !words.length; words = shuffle(learned).sort((a,b)=>S.words[a.id].lv - S.words[b.id].lv).slice(0,4); }
+    if(!words.length){ render(); return; }
+    const bag = {}; words.forEach(w => bag[w.id] = shuffle(REV_TYPES));
+    let k = 0; while(items.length < 4){ const w = words[k % words.length]; items.push(EX[bag[w.id].pop()](w)); k++; }
+    items.splice(2, 0, EX.pares(words[0], words.slice(1).concat(learned)));
+    const weakest = words.slice().sort((a,b)=>S.words[a.id].lv - S.words[b.id].lv)[0];
+    items.push(EX.escribir(weakest));
+  }
+  L = {items, i:0, nw, practice, err:{}, seen:{}, xp:0, correct:0, total:0, errors:0, frases:{}, lv0: levelIdx(), busy:false};
+  $('#lesson').hidden = false; document.body.style.overflow = 'hidden';
+  shell();
+  if(nw) intro(); else showEx();
+}
+function shell(){
+  $('#lesson').innerHTML = `<div class="l-top"><button class="xbtn" data-a="quit" aria-label="Salir de la lección">${IC.x}</button>
+    <div class="pbar" role="progressbar" aria-valuemin="0" aria-valuemax="100"><i id="pfill" style="width:0%"></i></div>
+    <div class="lives" id="lv">${IC.drop}<span>${S.lives}</span></div></div>
+    <div class="l-body" id="lbody"></div><div class="l-foot" id="lfoot"></div>
+    <div class="sheet" id="sheet"><div class="sheet-in" id="sheetIn"></div></div>`;
+}
+function setProgress(){ const p = Math.round(L.i / L.items.length * 100); const f=$('#pfill'); if(f){ f.style.width = p+'%'; f.parentNode.setAttribute('aria-valuenow', p);} }
+function setLives(hit){ const e=$('#lv'); if(!e) return; e.querySelector('span').textContent = S.lives; if(hit){ e.classList.remove('hit'); void e.offsetWidth; e.classList.add('hit'); } }
+function body(html){ const b=$('#lbody'); b.innerHTML = `<div class="ex">${html}</div>`; b.scrollTop = 0; setTimeout(()=>b.querySelectorAll('.hl').forEach(e=>e.classList.add('on')), 150); }
+function foot(html){ $('#lfoot').innerHTML = html; $('#lfoot').hidden = !html; }
+
+function intro(){
+  const w = L.nw;
+  body(`<div class="kicker" style="margin-bottom:4px">Palabra nueva · ${PALABRAS.length - learnedList().length} por descubrir</div>${fichaHTML(w,false)}`);
+  foot(`<button class="btn primary" data-a="intro-go">A practicar <span class="arr">→</span></button>`);
+}
+
+function sentenceWithBlank(fr){ return esc(fr).replace('___', '<span class="blank" id="blank">&nbsp;</span>'); }
+function showEx(){
+  setProgress(); L.sel = null; L.busy = false;
+  const ex = L.items[L.i], w = ex.w; let h = '';
+  const k = t => `<p class="ex-k"><i></i>${t}</p>`;
+  const wordOpts = ex.opts ? `<div class="opts grid">${ex.opts.map((o,i)=>`<button class="opt word" data-a="opt" data-i="${i}">${esc(o.p)}</button>`).join('')}</div>` : '';
+  switch(ex.tipo){
+    case 'def':
+      h = `${k('Elige la definición')}<h2 class="ex-t">¿Qué significa <span class="hl">${esc(w.p)}</span>?</h2><p class="ex-s">Solo una es correcta.</p>
+        <div class="opts">${ex.opts.map((o,i)=>`<button class="opt" data-a="opt" data-i="${i}"><span class="opt-n">${'ABCD'[i]}</span><span class="opt-t">${esc(o.d)}</span></button>`).join('')}</div>`; break;
+    case 'defInv':
+      h = `${k('¿Qué palabra es?')}<h2 class="ex-t">Encuentra la palabra</h2><div class="scrap">${esc(w.d)}</div>${wordOpts}`; break;
+    case 'comp':
+      h = `${k('Completa la frase')}<h2 class="ex-t">¿Qué palabra falta?</h2><div class="scrap">${sentenceWithBlank(w.comp)}</div>${wordOpts}`; break;
+    case 'mej': {
+      const fr = esc(w.mej[0]).replace(/\[(.+?)\]/, (_,m) => `<span class="circ">${m}${loopSVG(w.n*3+2)}</span>`);
+      h = `${k('Mejora esta frase')}<h2 class="ex-t">Dilo con más <span class="hl b">precisión</span></h2><p class="ex-s">Cambia la palabra rodeada por una más culta.</p><div class="scrap r">${fr}</div>${wordOpts}`; break; }
+    case 'vf':
+      h = `${k('Verdadero o falso')}<h2 class="ex-t">¿Está bien usada?</h2><div class="scrap">${markWord(ex.frase, w)}</div>
+        <div class="vf"><button class="opt" data-a="vf" data-v="1">${IC.ok}Verdadero</button><button class="opt" data-a="vf" data-v="0">${IC.no}Falso</button></div>`; break;
+    case 'pares': {
+      L.pr = {selL:null, selR:null, done:0, errs:0, lost:false};
+      const left = shuffle(ex.ws), right = shuffle(ex.ws);
+      h = `${k('Une las parejas')}<h2 class="ex-t">Cada palabra con su <span class="hl c">sinónimo</span></h2><p class="ex-s">Toca una de cada columna.</p>
+        <div class="pairs"><div class="col">${left.map(x=>`<button class="opt pair wd" data-a="pair" data-s="L" data-k="${x.id}">${esc(x.p)}</button>`).join('')}</div>
+        <div class="col">${right.map(x=>`<button class="opt pair" data-a="pair" data-s="R" data-k="${x.id}">${esc(x.s[0])}</button>`).join('')}</div></div>`; break; }
+    case 'escribir':
+      h = `${k('Escribe tu propia frase')}<h2 class="ex-t">Úsala tú: <span class="hl">${esc(w.p)}</span></h2><p class="ex-s">${esc(w.d)}</p>
+        <textarea class="write" id="wr" placeholder="Escribe una frase con «${esc(w.p)}»…" aria-label="Tu frase"></textarea>
+        <p class="hint">Piensa en tu día: el trabajo, la familia, un correo pendiente.</p>`; break;
+  }
+  body(h);
+  if(['def','defInv','comp','mej'].includes(ex.tipo)) foot(`<button class="btn primary" id="chk" data-a="check" disabled>Comprobar</button>`);
+  else if(ex.tipo==='escribir'){ foot(`<button class="btn primary" id="chk" data-a="write-check" disabled>Listo</button>`); const t=$('#wr'); t.oninput = () => { $('#chk').disabled = t.value.trim().length < 6; }; }
+  else foot('');
+}
+
+function selectOpt(i){
+  if(L.busy) return; const ex = L.items[L.i];
+  L.sel = i; play('tap');
+  document.querySelectorAll('#lbody .opt').forEach(b => b.classList.toggle('sel', +b.dataset.i===i));
+  if(ex.tipo==='comp'){ const b=$('#blank'); b.textContent = ex.opts[i].p; b.classList.remove('fill'); void b.offsetWidth; b.classList.add('fill'); }
+  const c=$('#chk'); if(c) c.disabled = false;
+}
+function check(){
+  if(L.busy || L.sel===null) return;
+  const ex = L.items[L.i], w = ex.w, picked = ex.opts[L.sel], ok = picked.id === w.id;
+  const btns = [...document.querySelectorAll('#lbody .opt')];
+  btns.forEach((b,i) => { b.classList.remove('sel'); if(ex.opts[i].id===w.id){ b.classList.add('ok'); b.insertAdjacentHTML('beforeend', CHECK); } else if(i===L.sel){ b.classList.add('ko'); b.insertAdjacentHTML('beforeend', CROSS); } else b.classList.add('dim'); });
+  let msg = '';
+  if(ex.tipo==='def') msg = ok ? `<b>${esc(w.p)}</b>: ${esc(w.d)}` : `<b>${esc(w.p)}</b> significa: ${esc(w.d)}`;
+  if(ex.tipo==='defInv') msg = ok ? `«${esc(w.p)}» es la palabra.` : `La palabra era <b>${esc(w.p)}</b>.`;
+  if(ex.tipo==='comp') msg = `«${esc(w.comp).replace('___', `<b>${esc(w.p)}</b>`)}»`;
+  if(ex.tipo==='mej') msg = `«${esc(w.mej[0]).replace(/\[(.+?)\]/, `<b>${esc(w.mej[1])}</b>`)}»`;
+  grade(ok, w, msg);
+}
+function grade(ok, w, msg, xp=10, countLife=true){
+  L.busy = true; L.seen[w.id] = 1; L.total++;
+  if(ok){ L.correct++; L.xp += xp; S.ok++; play('ok'); }
+  else { L.errors++; L.err[w.id] = (L.err[w.id]||0)+1; S.ko++; if(countLife){ loseLife(); setLives(true); } play('ko'); buzz(60); }
+  save();
+  const okT = ['¡Exacto!','¡Bien dicho!','¡Impecable!','¡Eso es!','¡Diáfano!','¡Sagaz!'], koT = ['Casi.','No era esa.','Por poco.','Uy, no.'];
+  sheet(ok, `<h3>${ok ? okT[rnd(okT.length)] : koT[rnd(koT.length)]}${ok?`<span class="xp">+${xp} XP</span>`:''}</h3><p>${msg}</p>`);
+}
+function sheet(ok, html){
+  const s = $('#sheet'), si = $('#sheetIn');
+  const out = !ok && S.lives <= 0;
+  si.innerHTML = html + `<button class="btn" data-a="${out?'fail':'next'}">${out?'Ver resultado':'Continuar'}</button>`;
+  s.className = 'sheet show ' + (ok ? 'ok' : 'ko'); foot('');
+  setTimeout(()=>{ const b = si.querySelector('.btn'); b && b.focus({preventScroll:true}); }, 60);
+}
+function hideSheet(){ const s=$('#sheet'); if(s) s.className = 'sheet'; }
+function next(){
+  hideSheet(); L.i++;
+  if(L.i >= L.items.length){ finish(); return; }
+  setTimeout(showEx, 120);
+}
+function answerVF(v){
+  if(L.busy) return; const ex = L.items[L.i], ok = (v===1) === ex.ok;
+  document.querySelectorAll('#lbody .vf .opt').forEach(b => { const bv = +b.dataset.v; if((bv===1)===ex.ok){ b.classList.add('ok'); } else if(bv===v){ b.classList.add('ko'); } else b.classList.add('dim'); });
+  grade(ok, ex.w, `${ex.ok ? 'Es <b>verdadero</b>' : 'Es <b>falso</b>'}. ${esc(ex.exp || '')}`);
+}
+function tapPair(btn){
+  if(L.busy) return; const pr = L.pr, side = btn.dataset.s, k = btn.dataset.k;
+  if(btn.classList.contains('done')) return;
+  play('tap');
+  document.querySelectorAll(`#lbody .pair[data-s="${side}"]`).forEach(b => b.classList.remove('sel'));
+  btn.classList.add('sel'); if(side==='L') pr.selL = btn; else pr.selR = btn;
+  if(pr.selL && pr.selR){
+    const a = pr.selL, b = pr.selR; pr.selL = pr.selR = null;
+    if(a.dataset.k === b.dataset.k){
+      [a,b].forEach(x => { x.classList.remove('sel'); x.classList.add('done','flash'); }); play('match'); pr.done++;
+      L.seen[a.dataset.k] = 1;
+      const ex = L.items[L.i];
+      if(pr.done === ex.ws.length){
+        const ok = pr.errs === 0; L.total++; L.seen[ex.w.id] = 1;
+        if(ok){ L.correct++; S.ok++; } else S.ko++;
+        L.xp += ok ? 10 : 5; L.busy = true; save(); if(ok) play('ok');
+        setTimeout(() => sheet(true, `<h3>${ok?'¡Todas!':'Hecho.'}<span class="xp">+${ok?10:5} XP</span></h3><p>${ok?'Sin un solo tropiezo.':`Con ${pr.errs} ${pr.errs===1?'tropiezo':'tropiezos'}. Ya las tienes unidas.`}</p>`), 380);
+      }
+    } else {
+      [a,b].forEach(x => { x.classList.remove('sel'); x.classList.add('ko'); setTimeout(()=>x.classList.remove('ko'), 480); });
+      pr.errs++; L.errors++; L.err[a.dataset.k] = (L.err[a.dataset.k]||0)+1; play('ko'); buzz(50);
+      if(!pr.lost){ pr.lost = true; loseLife(); setLives(true); if(S.lives<=0){ L.busy = true; L.total++; S.ko++; save(); setTimeout(()=>sheet(false, `<h3>Sin tinta.</h3><p>Se acabaron las gotas por ahora.</p>`), 500); } }
+    }
+  }
+}
+/* Escribir: comprobación suave + autoevaluación */
+function writeCheck(){
+  const ex = L.items[L.i], w = ex.w, txt = $('#wr').value.trim();
+  const used = norm(txt).includes(w.stem);
+  L.frases[w.id] = txt;
+  body(`<p class="ex-k"><i></i>Tu frase</p><h2 class="ex-t">¿Cómo te salió?</h2>
+    <div class="scrap">«${markWord(txt, w)}»</div>
+    ${used ? '' : `<div class="warn">No encuentro «${esc(w.p)}» en tu frase. ¿Seguro que la usaste? <button class="link" data-a="rewrite">Volver a escribir</button></div>`}
+    <p class="ex-s" style="margin-top:4px">Así la usaría alguien en una conversación:<br><span style="color:#111">«${markWord(w.h, w)}»</span></p>
+    <div class="selfev">
+      <button class="opt" data-a="self" data-s="3"><span class="em">✶</span>La clavé: suena natural</button>
+      <button class="opt" data-a="self" data-s="2"><span class="em">~</span>Más o menos</button>
+      <button class="opt" data-a="self" data-s="1"><span class="em">?</span>Todavía me cuesta</button>
+    </div>`);
+  foot('');
+}
+function selfEval(s){
+  const ex = L.items[L.i], w = ex.w, xp = s===3 ? 10 : s===2 ? 6 : 3;
+  L.seen[w.id] = 1; L.xp += xp; L.total++; L.correct++; if(s===1) L.err[w.id] = (L.err[w.id]||0)+1;
+  play(s>1 ? 'ok' : 'tap'); toast(`Frase guardada · <b>+${xp} XP</b>`);
+  next();
+}
+
+/* Fin de lección */
+function finish(){
+  const t = today(), wasNew = L.nw;
+  for(const id of Object.keys(L.seen)){
+    const r = S.words[id], errs = L.err[id] || 0;
+    if(wasNew && id === wasNew.id){
+      S.words[id] = {lv:1, due:t+1, learned:t, seen:1, frases:[]};
+    } else if(r){
+      r.seen = (r.seen||0) + 1;
+      if(!L.practice && r.due <= t){ r.lv = errs ? Math.max(1, r.lv-1) : Math.min(MAXLV, r.lv+1); r.due = t + INTERVALO[r.lv]; }
+      else if(errs){ r.lv = Math.max(1, r.lv-1); r.due = Math.min(r.due, t+1); }
+    }
+  }
+  for(const [id, f] of Object.entries(L.frases)){ if(S.words[id] && f){ (S.words[id].frases = S.words[id].frases || []).push(f); S.words[id].frases = S.words[id].frases.slice(-5); } }
+  if(wasNew){ S.lastNew = t; L.xp += 10; }
+  const perfect = L.errors === 0; L.xp += 15 + (perfect ? 10 : 0);
+  S.xp += L.xp; S.lessons++;
+  if(S.lastDay !== t){ S.streak = (S.lastDay === t-1) ? S.streak + 1 : 1; S.lastDay = t; }
+  S.best = Math.max(S.best, S.streak);
+  if(!S.days.includes(t)) S.days = S.days.concat(t).slice(-120);
+  save();
+  celebrate(perfect);
+}
+function celebrate(perfect){
+  setProgress(); $('#pfill').style.width = '100%'; hideSheet(); foot('');
+  const acc = L.total ? Math.round(L.correct/L.total*100) : 100, lv1 = levelIdx();
+  const up = lv1 > L.lv0 ? `<div class="lvup">Subiste de nivel: ahora eres <b>${NIVELES[lv1].n}</b><div style="font-weight:600;font-size:.9rem;margin-top:4px">${NIVELES[lv1].d}</div></div>` : '';
+  const learned = L.nw ? `<p class="learned">Hoy entra en tu léxico: <span class="serif hl c">${esc(L.nw.p)}</span></p>` : '';
+  body(`<div class="celeb center">
+    <div class="celeb-art">${quillSVG().replace('<svg ','<svg style="left:2%;top:0;width:28%;transform:rotate(-12deg)" ')}
+      ${polySVG().replace('<svg ','<svg style="right:6%;top:10px;width:20%;transform:rotate(14deg)" ')}
+      ${discSVG().replace('<svg ','<svg style="left:36%;top:24px;width:30%" ')}
+      ${spatterSVG('',9,22).replace('<svg ','<svg style="left:20%;top:0;width:60%;height:100%" ')}</div>
+    <div class="kicker">${L.practice ? 'Práctica terminada' : 'Lección completa'}</div>
+    <h1 style="margin-top:8px"><span class="hl">${perfect ? '¡Perfecto!' : '¡Bravo!'}</span></h1>
+    <p class="sub">${perfect ? 'Ni un solo error. Así se escribe.' : 'Cada error de hoy es un acierto de mañana.'}</p>
+    <div class="tiles"><div class="tile y"><b>+${L.xp}</b><span>XP</span></div><div class="tile"><b>${acc}%</b><span>Aciertos</span></div><div class="tile"><b>${S.streak}</b><span>${S.streak===1?'Día':'Días'} de racha</span></div></div>
+    ${up}${learned}</div>`);
+  foot(`<button class="btn primary" data-a="done">Continuar <span class="arr">→</span></button>`);
+  play('win'); confetti();
+}
+function confetti(){
+  const c = document.createElement('div'); c.className = 'confetti'; let h = '';
+  const shapes = [
+    s => `<svg width="${s}" height="${s}" viewBox="0 0 10 10"><polygon points="5,0 10,10 0,10" fill="#111"/></svg>`,
+    s => `<svg width="${s}" height="${s}" viewBox="0 0 10 10"><circle cx="5" cy="5" r="5" fill="#111"/></svg>`,
+    s => `<svg width="${s*1.8}" height="${s*.7}" viewBox="0 0 18 7"><rect width="18" height="7" fill="#FFE600"/></svg>`,
+    s => `<svg width="${s}" height="${s}" viewBox="0 0 10 10"><rect x="1" y="1" width="8" height="8" fill="none" stroke="#111" stroke-width="2"/></svg>`,
+    s => `<svg width="${s}" height="${s}" viewBox="0 0 10 10"><polygon points="5,0 10,5 5,10 0,5" fill="#FFE600" stroke="#111" stroke-width="1"/></svg>`
+  ];
+  for(let i=0;i<46;i++){ const s = 8 + rnd(12);
+    h += `<i style="left:${rnd(100)}%;--dx:${rnd(160)-80}px;--rot:${rnd(900)-450}deg;animation-duration:${1.8+Math.random()*1.8}s;animation-delay:${Math.random()*.5}s">${shapes[rnd(shapes.length)](s)}</i>`; }
+  c.innerHTML = h; document.body.appendChild(c); setTimeout(() => c.remove(), 4500);
+}
+function fail(){
+  hideSheet(); S.xp += L.xp; save();
+  body(`<div class="celeb center">
+    <div class="celeb-art">${blotSVG('',13).replace('<svg ','<svg style="left:28%;top:0;width:44%" ')}</div>
+    <div class="kicker">Lección interrumpida</div>
+    <h1 style="margin-top:8px;font-size:clamp(2.6rem,13vw,4rem)">Se acabó la <span class="hl b">tinta</span></h1>
+    <p class="sub">Te quedaste sin gotas. Se recarga una cada 20 minutos.<br>Mientras tanto, relee tus fichas en «Mi léxico».</p>
+    ${L.xp ? `<div class="tiles" style="grid-template-columns:1fr"><div class="tile y"><b>+${L.xp}</b><span>XP conservados</span></div></div>` : ''}</div>`);
+  foot(`<button class="btn primary" data-a="done">Volver</button>`);
+}
+function closeLesson(){ L = null; $('#lesson').hidden = true; $('#lesson').innerHTML = ''; document.body.style.overflow = ''; closeModal(); render(); window.scrollTo(0,0); }
+function noInk(){
+  const m = Math.ceil(nextLifeIn()/60000);
+  openModal(`${blotSVG('',6).replace('<svg ','<svg style="width:120px" ')}<h2 class="ex-t">Sin tinta</h2><p class="ex-s">Vuelve en ${m} ${m===1?'minuto':'minutos'}: se recarga una gota cada 20. Mientras, repasa tus fichas.</p>
+    <button class="btn primary" data-a="go-lex">Ir a Mi léxico</button><button class="btn ghost" data-a="close-modal">Cerrar</button>`, true);
+}
+
+/* ===================== Eventos ===================== */
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-a]'); if(!el) return;
+  const a = el.dataset.a;
+  switch(a){
+    case 'tab': TAB = el.dataset.t; render(); window.scrollTo(0,0); break;
+    case 'start-new': startLesson('new'); break;
+    case 'start-review': startLesson('review'); break;
+    case 'start-practice': startLesson('practice'); break;
+    case 'intro-go': showEx(); break;
+    case 'opt': selectOpt(+el.dataset.i); break;
+    case 'check': check(); break;
+    case 'next': next(); break;
+    case 'vf': answerVF(+el.dataset.v); break;
+    case 'pair': tapPair(el); break;
+    case 'write-check': writeCheck(); break;
+    case 'rewrite': { const prev = L.frases[L.items[L.i].w.id] || ''; showEx(); $('#wr').value = prev; $('#chk').disabled = prev.trim().length < 6; break; }
+    case 'self': selfEval(+el.dataset.s); break;
+    case 'fail': fail(); break;
+    case 'done': closeLesson(); break;
+    case 'quit':
+      openModal(`<h2 class="ex-t">¿Dejarlo aquí?</h2><p class="ex-s">Perderás el progreso de esta lección.</p>
+        <button class="btn primary" data-a="close-modal">Seguir practicando</button><button class="btn ghost" data-a="quit-yes">Salir</button>`, true); break;
+    case 'quit-yes': closeLesson(); break;
+    case 'ficha': openModal(fichaHTML(BYID[el.dataset.id])); break;
+    case 'close-modal': closeModal(); break;
+    case 'close-modal-bg': if(e.target === el) closeModal(); break;
+    case 'go-lex': closeModal(); TAB = 'lex'; render(); break;
+    case 'filtro': FILTRO = el.dataset.f; render(); break;
+    case 'toggle-sound': S.sound = !S.sound; save(); render(); if(S.sound) play('ok'); break;
+    case 'toggle-int': S.intensivo = !S.intensivo; save(); render(); break;
+    case 'reset':
+      openModal(`<h2 class="ex-t">¿Borrar todo?</h2><p class="ex-s">Se perderán tus palabras, tu racha y tus puntos. No se puede deshacer.</p>
+        <button class="btn primary" data-a="reset-yes">Sí, empezar de cero</button><button class="btn ghost" data-a="close-modal">Cancelar</button>`, true); break;
+    case 'reset-yes': S = DEF(); save(); closeModal(); TAB='hoy'; render(); toast('Cuaderno en blanco'); break;
+  }
+});
+document.addEventListener('keydown', e => {
+  if(e.key === 'Escape' && !$('#modal').hidden){ closeModal(); return; }
+  if(!L || $('#lesson').hidden) return;
+  const ex = L.items[L.i];
+  if(e.key === 'Enter' && !e.shiftKey){
+    const sb = document.querySelector('#sheet.show .btn'); if(sb){ e.preventDefault(); sb.click(); return; }
+    const c = $('#chk'); if(c && !c.disabled && ex && ex.tipo!=='escribir'){ e.preventDefault(); c.click(); }
+  }
+  if(ex && ex.opts && !L.busy && /^[1-4]$/.test(e.key) && document.activeElement.tagName !== 'TEXTAREA') selectOpt(+e.key-1);
+});
+document.addEventListener('visibilitychange', () => { if(!document.hidden && !L){ refreshLives(); render(); } });
+
+/* Decoración de márgenes en pantallas anchas */
+(function margins(){
+  $('#decoL').innerHTML = quillSVG('',44).replace('<svg ','<svg style="left:24%;top:10%;width:46%;transform:rotate(-14deg)" ')
+    + polySVG().replace('<svg ','<svg style="left:22%;top:58%;width:22%;transform:rotate(-12deg)" ')
+    + spatterSVG('',3,40).replace('<svg ','<svg style="left:10%;top:70%;width:50%" ')
+    + `<svg style="left:0;top:0;width:100%;height:100%" viewBox="0 0 300 900" preserveAspectRatio="none"><path class="pencil" d="${wigglePath([[260,120],[220,260],[280,420],[180,600],[260,860]],7,14)}"/></svg>`;
+  $('#decoR').innerHTML = discSVG('',false).replace('<svg ','<svg style="right:-30%;top:8%;width:90%" ')
+    + shardSVG('',12).replace('<svg ','<svg style="left:18%;top:46%;width:22%;transform:rotate(-10deg)" ')
+    + quillSVG().replace('<svg ','<svg style="left:44%;top:56%;width:40%;transform:rotate(18deg)" ');
+})();
+
+render();
+</script>
+</body>
+</html>
