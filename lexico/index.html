@@ -357,6 +357,9 @@ textarea.write{width:100%;min-height:130px;padding:16px;border:2.5px solid var(-
 <div id="modal" hidden></div>
 <div class="toast" id="toast" role="status"></div>
 
+<!-- Base de datos ampliada: lexico/privado/ no se sube al repositorio público.
+     Si no está, la app funciona con las palabras incluidas abajo. -->
+<script src="privado/fichas.js"></script>
 <script>
 /* =========================================================
    DATOS · Para agregar palabras, añade objetos a PALABRAS
@@ -747,14 +750,44 @@ const shuffle = a => { a=a.slice(); for(let i=a.length-1;i>0;i--){const j=rnd(i+
 const fx = n => Math.round(n*10)/10;
 function rng(seed){ return function(){ seed|=0; seed=seed+0x6D2B79F5|0; let t=Math.imul(seed^seed>>>15,1|seed); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; }
 const CAT = {adj:'adjetivo', verbo:'verbo', sust:'sustantivo'};
-PALABRAS.forEach((w,i) => { w.id = norm(w.p); w.n = i+1; w.stem = stemOf(w); });
+/* Fichas ampliadas: se añaden detrás de las 36 iniciales, por dificultad creciente
+   y alternando adjetivo, verbo y sustantivo para que el orden no se haga monótono. */
+(function mergeLotes(){
+  const lotes = [].concat(...(window.LEXICO_LOTES || []));
+  const seen = new Set(PALABRAS.map(w => w.p));
+  const extra = lotes.filter(w => w && w.p && !seen.has(w.p) && seen.add(w.p));
+  [1,2,3].forEach(n => {
+    const q = ['adj','verbo','sust'].map(c => extra.filter(w => (w.n||2) === n && w.c === c));
+    while(q.some(x => x.length)) q.forEach(x => { if(x.length) PALABRAS.push(x.shift()); });
+  });
+})();
+PALABRAS.forEach((w,i) => {
+  if(typeof w.comp === 'string') w.comp = [w.comp];
+  if(typeof w.mej[0] === 'string') w.mej = [w.mej];
+  w.a = w.a || []; w.dif = w.n || 2;
+  w.id = norm(w.p); w.n = i+1; w.stems = stemsOf(w);
+});
 const BYID = Object.fromEntries(PALABRAS.map(w => [w.id, w]));
-function stemOf(w){ const b=norm(w.p); const cut = w.c==='verbo' ? 2 : 1; return b.length-cut >= 4 ? b.slice(0, b.length-cut) : b; }
+/* Raíces para reconocer la palabra conjugada o flexionada (percaté, discierno, recalqué…) */
+function stemsOf(w){
+  let b = norm(w.p); if(w.c === 'verbo' && b.endsWith('se')) b = b.slice(0, -2);
+  const cut = w.c === 'verbo' ? 2 : 1, st = b.length - cut >= 4 ? b.slice(0, b.length - cut) : b, out = new Set([st]);
+  if(w.c === 'verbo'){
+    const e = st.lastIndexOf('e'), o = st.lastIndexOf('o');
+    if(e > 0){ out.add(st.slice(0,e) + 'ie' + st.slice(e+1)); out.add(st.slice(0,e) + 'i' + st.slice(e+1)); }
+    if(o > 0) out.add(st.slice(0,o) + 'ue' + st.slice(o+1));
+    if(st.endsWith('c')) out.add(st.slice(0,-1) + 'qu');
+    if(st.endsWith('z')) out.add(st.slice(0,-1) + 'c');
+    if(st.endsWith('g')) out.add(st.slice(0,-1) + 'gu');
+  }
+  return [...out];
+}
+const hasWord = (txt, w) => { const n = norm(txt); return w.stems.some(s => n.includes(s)); };
 /* ¿Comparten sinónimos? (evita distractores ambiguos) */
 function clash(a,b){ return a.s.some(x => b.s.includes(x)) || a.s.includes(b.p) || b.s.includes(a.p); }
 /* resalta la palabra (y sus formas) dentro de un texto */
 function markWord(text, w, cls='u'){
-  return esc(text).replace(/[\p{L}]+/gu, tok => norm(tok).startsWith(w.stem) ? `<mark class="${cls}">${tok}</mark>` : tok);
+  return esc(text).replace(/[\p{L}]+/gu, tok => w.stems.some(s => norm(tok).startsWith(s)) ? `<mark class="${cls}">${tok}</mark>` : tok);
 }
 
 /* ===================== Fechas ===================== */
@@ -1145,7 +1178,7 @@ function fichaHTML(w, withMine=true){
     <section class="f-sec"><h4>En vez de decir…</h4>
       <p class="evd">${w.ev.map(v=>`<s>${esc(v)}</s>`).join(', ')}, di <mark class="u">${esc(w.p)}</mark>.</p>
       <div class="chips" style="margin-top:4px"><span class="lbl">Sinónimos</span>${w.s.map(v=>`<span class="chip s">${esc(v)}</span>`).join('')}</div>
-      <div class="chips"><span class="lbl">Antónimos</span>${w.a.map(v=>`<span class="chip a">${esc(v)}</span>`).join('')}</div></section>
+      ${w.a.length ? `<div class="chips"><span class="lbl">Antónimos</span>${w.a.map(v=>`<span class="chip a">${esc(v)}</span>`).join('')}</div>` : ''}</section>
     <section class="f-sec"><h4>De dónde viene</h4><p class="ety-t">${esc(w.e)}</p></section>
     ${quote}${mine}</article>`;
 }
@@ -1169,16 +1202,44 @@ function pairSet(w, prefer){
   for(const x of shuffle(prefer).concat(shuffle(PALABRAS))){ if(set.length>=4) break; if(ok(x)) set.push(x); }
   return shuffle(set);
 }
+/* Modelo mixto: cada palabra trae varias frases por ejercicio; se elige una que el
+   usuario no haya visto todavía y, cuando se agotan, se vuelve a barajar. Las opciones
+   falsas, las parejas y el orden se recombinan en cada lección. */
+function variant(w, kind, n){
+  S.vis = S.vis || {}; const v = S.vis[w.id] = S.vis[w.id] || {};
+  let used = (v[kind] || []).filter(i => i < n), free = [...Array(n).keys()].filter(i => !used.includes(i));
+  if(!free.length){ used = []; free = [...Array(n).keys()]; }
+  const i = free[rnd(free.length)]; v[kind] = used.concat(i); return i;
+}
+const maskWord = (text, w) => esc(text).replace(/[\p{L}]+/gu, tok => w.stems.some(s => norm(tok).startsWith(s)) ? '<span class="blank">&nbsp;?&nbsp;</span>' : tok);
 const EX = {
   def:    w => ({tipo:'def', w, opts: shuffle([w, ...shuffle(PALABRAS.filter(x => x.id!==w.id && !clash(x,w))).slice(0,3)])}),
   defInv: w => ({tipo:'defInv', w, opts: shuffle([w, ...distract(w,3)])}),
-  comp:   w => ({tipo:'comp', w, opts: shuffle([w, ...distract(w,3)])}),
-  mej:    w => ({tipo:'mej', w, opts: shuffle([w, ...distract(w,3)])}),
-  vf:     w => { const v = w.vf[rnd(w.vf.length)]; return {tipo:'vf', w, frase:v[0], ok:v[1], exp:v[2]}; },
+  comp:   w => ({tipo:'comp', w, fr: w.comp[variant(w,'comp',w.comp.length)], opts: shuffle([w, ...distract(w,3)])}),
+  mej:    w => ({tipo:'mej', w, m: w.mej[variant(w,'mej',w.mej.length)], opts: shuffle([w, ...distract(w,3)])}),
+  vf:     w => { const v = w.vf[variant(w,'vf',w.vf.length)]; return {tipo:'vf', w, frase:v[0], ok:v[1], exp:v[2]}; },
+  /* Lo contrario: las opciones falsas son sinónimos, así que hay que entender la palabra */
+  anto:   w => { const good = w.a[rnd(w.a.length)], labels = shuffle([good, ...shuffle(w.s).slice(0,3)]);
+                 return {tipo:'anto', w, labels, okIdx: labels.indexOf(good)}; },
+  /* El intruso: tres sinónimos y una palabra que no lo es */
+  intruso: w => { const others = PALABRAS.filter(x => x.id!==w.id && !clash(x,w) && !w.s.includes(x.s[0]));
+                  const bad = w.a.length && rnd(2) ? w.a[rnd(w.a.length)] : others[rnd(others.length)].s[0];
+                  const labels = shuffle([bad, ...shuffle(w.s).slice(0,3)]);
+                  return {tipo:'intruso', w, labels, okIdx: labels.indexOf(bad)}; },
+  /* Detective del origen: la etimología con la palabra tapada */
+  ety:    w => ({tipo:'ety', w, opts: shuffle([w, ...distract(w,3)])}),
   pares:  (w, prefer) => ({tipo:'pares', w, ws: pairSet(w, prefer)}),
   escribir: w => ({tipo:'escribir', w})
 };
-const REV_TYPES = ['def','defInv','comp','mej','vf'];
+const REV_TYPES = ['def','defInv','comp','mej','vf','anto','intruso','ety'];
+/* El detective del origen solo vale si la etimología no delata la palabra (desenlace ← «desenlazar») */
+const etyFair = w => !(w.e.match(/[\p{L}]+/gu) || []).some(tok => { const n = norm(tok); return !w.stems.some(s => n.startsWith(s)) && n.length > 3 && n.startsWith(norm(w.p).slice(0, 4)); });
+const canDo = (t, w) => t === 'anto' ? w.a.length > 0 && w.s.length >= 3 : t === 'intruso' ? w.s.length >= 3 : t === 'ety' ? etyFair(w) : true;
+function pickType(w, avoid=[]){
+  S.lastT = S.lastT || {};
+  const pool = REV_TYPES.filter(t => canDo(t, w) && t !== S.lastT[w.id] && !avoid.includes(t));
+  const t = pool[rnd(pool.length)] || 'def'; S.lastT[w.id] = t; return t;
+}
 
 /* ===================== Lección ===================== */
 let L = null;
@@ -1190,16 +1251,16 @@ function startLesson(kind){
   if(kind === 'new'){
     nw = newAvailable(); if(!nw){ render(); return; }
     const others = learned.filter(x => x.id!==nw.id);
-    items = [EX.def(nw), EX.comp(nw), EX.vf(nw), EX.mej(nw), EX.pares(nw, others)];
+    items = [EX.def(nw), EX.comp(nw), EX[canDo('intruso', nw) && rnd(2) ? 'intruso' : 'vf'](nw), EX.mej(nw), EX.pares(nw, others)];
     const due = dueWords();
-    if(due.length) items.splice(3, 0, EX[REV_TYPES[rnd(REV_TYPES.length)]](due[0]));
+    if(due.length) items.splice(3, 0, EX[pickType(due[0])](due[0]));
     items.push(EX.escribir(nw));
   } else {
     words = dueWords().slice(0,4);
     if(!words.length || kind==='practice'){ practice = kind==='practice' || !words.length; words = shuffle(learned).sort((a,b)=>S.words[a.id].lv - S.words[b.id].lv).slice(0,4); }
     if(!words.length){ render(); return; }
-    const bag = {}; words.forEach(w => bag[w.id] = shuffle(REV_TYPES));
-    let k = 0; while(items.length < 4){ const w = words[k % words.length]; items.push(EX[bag[w.id].pop()](w)); k++; }
+    const usedT = {}; let k = 0;
+    while(items.length < 4){ const w = words[k % words.length]; const t = pickType(w, usedT[w.id] || []); (usedT[w.id] = usedT[w.id] || []).push(t); items.push(EX[t](w)); k++; }
     items.splice(2, 0, EX.pares(words[0], words.slice(1).concat(learned)));
     const weakest = words.slice().sort((a,b)=>S.words[a.id].lv - S.words[b.id].lv)[0];
     items.push(EX.escribir(weakest));
@@ -1232,6 +1293,7 @@ function showEx(){
   setProgress(); L.sel = null; L.busy = false;
   const ex = L.items[L.i], w = ex.w; let h = '';
   const k = t => `<p class="ex-k"><i></i>${t}</p>`;
+  const labelOpts = e => `<div class="opts grid">${e.labels.map((t,i)=>`<button class="opt word" data-a="opt" data-i="${i}">${esc(t)}</button>`).join('')}</div>`;
   const wordOpts = ex.opts ? `<div class="opts grid">${ex.opts.map((o,i)=>`<button class="opt word" data-a="opt" data-i="${i}">${esc(o.p)}</button>`).join('')}</div>` : '';
   switch(ex.tipo){
     case 'def':
@@ -1240,9 +1302,15 @@ function showEx(){
     case 'defInv':
       h = `${k('¿Qué palabra es?')}<h2 class="ex-t">Encuentra la palabra</h2><div class="scrap">${esc(w.d)}</div>${wordOpts}`; break;
     case 'comp':
-      h = `${k('Completa la frase')}<h2 class="ex-t">¿Qué palabra falta?</h2><div class="scrap">${sentenceWithBlank(w.comp)}</div>${wordOpts}`; break;
+      h = `${k('Completa la frase')}<h2 class="ex-t">¿Qué palabra falta?</h2><div class="scrap">${sentenceWithBlank(ex.fr)}</div>${wordOpts}`; break;
+    case 'anto':
+      h = `${k('Lo contrario')}<h2 class="ex-t">¿Qué es lo opuesto a <span class="hl">${esc(w.p)}</span>?</h2><p class="ex-s">Cuidado: tres de las opciones significan lo mismo.</p>${labelOpts(ex)}`; break;
+    case 'intruso':
+      h = `${k('El intruso')}<h2 class="ex-t">¿Cuál <span class="hl b">no</span> es sinónimo de ${esc(w.p)}?</h2><p class="ex-s">Tres significan lo mismo; una no encaja.</p>${labelOpts(ex)}`; break;
+    case 'ety':
+      h = `${k('Detective del origen')}<h2 class="ex-t">¿De qué palabra es esta historia?</h2><div class="scrap r" style="font-family:var(--serif);font-style:italic">${maskWord(w.e, w)}</div>${wordOpts}`; break;
     case 'mej': {
-      const fr = esc(w.mej[0]).replace(/\[(.+?)\]/, (_,m) => `<span class="circ">${m}${loopSVG(w.n*3+2)}</span>`);
+      const fr = esc(ex.m[0]).replace(/\[(.+?)\]/, (_,m) => `<span class="circ">${m}${loopSVG(w.n*3+2)}</span>`);
       h = `${k('Mejora esta frase')}<h2 class="ex-t">Dilo con más <span class="hl b">precisión</span></h2><p class="ex-s">Cambia la palabra rodeada por una más culta.</p><div class="scrap r">${fr}</div>${wordOpts}`; break; }
     case 'vf':
       h = `${k('Verdadero o falso')}<h2 class="ex-t">¿Está bien usada?</h2><div class="scrap">${markWord(ex.frase, w)}</div>
@@ -1259,7 +1327,7 @@ function showEx(){
         <p class="hint">Piensa en tu día: el trabajo, la familia, un correo pendiente.</p>`; break;
   }
   body(h);
-  if(['def','defInv','comp','mej'].includes(ex.tipo)) foot(`<button class="btn primary" id="chk" data-a="check" disabled>Comprobar</button>`);
+  if(['def','defInv','comp','mej','anto','intruso','ety'].includes(ex.tipo)) foot(`<button class="btn primary" id="chk" data-a="check" disabled>Comprobar</button>`);
   else if(ex.tipo==='escribir'){ foot(`<button class="btn primary" id="chk" data-a="write-check" disabled>Listo</button>`); const t=$('#wr'); t.oninput = () => { $('#chk').disabled = t.value.trim().length < 6; }; }
   else foot('');
 }
@@ -1273,14 +1341,17 @@ function selectOpt(i){
 }
 function check(){
   if(L.busy || L.sel===null) return;
-  const ex = L.items[L.i], w = ex.w, picked = ex.opts[L.sel], ok = picked.id === w.id;
+  const ex = L.items[L.i], w = ex.w, isOk = i => ex.labels ? i === ex.okIdx : ex.opts[i].id === w.id, ok = isOk(L.sel);
   const btns = [...document.querySelectorAll('#lbody .opt')];
-  btns.forEach((b,i) => { b.classList.remove('sel'); if(ex.opts[i].id===w.id){ b.classList.add('ok'); b.insertAdjacentHTML('beforeend', CHECK); } else if(i===L.sel){ b.classList.add('ko'); b.insertAdjacentHTML('beforeend', CROSS); } else b.classList.add('dim'); });
+  btns.forEach((b,i) => { b.classList.remove('sel'); if(isOk(i)){ b.classList.add('ok'); b.insertAdjacentHTML('beforeend', CHECK); } else if(i===L.sel){ b.classList.add('ko'); b.insertAdjacentHTML('beforeend', CROSS); } else b.classList.add('dim'); });
   let msg = '';
   if(ex.tipo==='def') msg = ok ? `<b>${esc(w.p)}</b>: ${esc(w.d)}` : `<b>${esc(w.p)}</b> significa: ${esc(w.d)}`;
   if(ex.tipo==='defInv') msg = ok ? `«${esc(w.p)}» es la palabra.` : `La palabra era <b>${esc(w.p)}</b>.`;
-  if(ex.tipo==='comp') msg = `«${esc(w.comp).replace('___', `<b>${esc(w.p)}</b>`)}»`;
-  if(ex.tipo==='mej') msg = `«${esc(w.mej[0]).replace(/\[(.+?)\]/, `<b>${esc(w.mej[1])}</b>`)}»`;
+  if(ex.tipo==='comp') msg = `«${esc(ex.fr).replace('___', `<b>${esc(w.p)}</b>`)}»`;
+  if(ex.tipo==='mej') msg = `«${esc(ex.m[0]).replace(/\[(.+?)\]/, `<b>${esc(ex.m[1])}</b>`)}»`;
+  if(ex.tipo==='anto') msg = `Lo contrario de <b>${esc(w.p)}</b> es <b>${esc(ex.labels[ex.okIdx])}</b>. Sinónimos: ${esc(w.s.slice(0,3).join(', '))}.`;
+  if(ex.tipo==='intruso') msg = `<b>${esc(ex.labels[ex.okIdx])}</b> no significa lo mismo que <b>${esc(w.p)}</b>.`;
+  if(ex.tipo==='ety') msg = `Era <b>${esc(w.p)}</b>. ${esc(w.e)}`;
   grade(ok, w, msg);
 }
 function grade(ok, w, msg, xp=10, countLife=true){
@@ -1337,7 +1408,7 @@ function tapPair(btn){
 /* Escribir: comprobación suave + autoevaluación */
 function writeCheck(){
   const ex = L.items[L.i], w = ex.w, txt = $('#wr').value.trim();
-  const used = norm(txt).includes(w.stem);
+  const used = hasWord(txt, w);
   L.frases[w.id] = txt;
   body(`<p class="ex-k"><i></i>Tu frase</p><h2 class="ex-t">¿Cómo te salió?</h2>
     <div class="scrap">«${markWord(txt, w)}»</div>
@@ -1473,7 +1544,7 @@ document.addEventListener('keydown', e => {
     const sb = document.querySelector('#sheet.show .btn'); if(sb){ e.preventDefault(); sb.click(); return; }
     const c = $('#chk'); if(c && !c.disabled && ex && ex.tipo!=='escribir'){ e.preventDefault(); c.click(); }
   }
-  if(ex && ex.opts && !L.busy && /^[1-4]$/.test(e.key) && document.activeElement.tagName !== 'TEXTAREA') selectOpt(+e.key-1);
+  if(ex && (ex.opts || ex.labels) && !L.busy && /^[1-4]$/.test(e.key) && document.activeElement.tagName !== 'TEXTAREA') selectOpt(+e.key-1);
 });
 document.addEventListener('visibilitychange', () => { if(!document.hidden && !L){ refreshLives(); render(); } });
 
