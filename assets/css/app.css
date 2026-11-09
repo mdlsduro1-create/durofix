@@ -378,3 +378,137 @@ main:focus, main:focus-visible { outline: none; }
 .sky { position: relative; height: 240px; border-radius: 18px; overflow: hidden; background: linear-gradient(180deg, var(--band-2), var(--band-3)); border: 1px solid var(--line); }
 .cloud { position: absolute; left: -40%; max-width: 70%; background: var(--glass); border: 1px solid var(--glass-edge); box-shadow: var(--shadow); border-radius: 99px; padding: 10px 18px; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; animation: drift 11s linear forwards; }
 @keyframes drift { 0% { left: -40%; opacity: 0; } 10% { opacity: 1; } 85% { opacity: 1; } 100% { left: 110%; opacity: 0; } }
+
+/* =====================================================================
+   TEMA DE COLOR (corrección del equipo STEM+: colores llamativos y armónicos)
+   Violeta como color de marca, coral y turquesa de acento, y un semáforo
+   con verde, ámbar y rojo reales. Se aplica sobre la base anterior.
+   ===================================================================== */
+:root {
+  --brand: #6d4aff;
+  --brand-2: #ff5d8f;
+  --brand-3: #18c3b0;
+  --sun: #ffb020;
+  --grad: linear-gradient(120deg, #6d4aff 0%, #b04cff 45%, #ff5d8f 100%);
+  --grad-soft: linear-gradient(120deg, rgba(109, 74, 255, .12), rgba(255, 93, 143, .12));
+  --ok: #19b36b; --ok-bg: #dff7ea;
+  --warn: #f29d0c; --warn-bg: #fff1d6;
+  --bad: #e5384f; --bad-bg: #ffe1e5;
+  --bg: #f7f5ff;
+  --ink: #1d1838;
+  --ink-2: #4a4568;
+  --muted: #8a86a3;
+  --line: rgba(60, 40, 140, .10);
+  --band-1: rgba(109, 74, 255, .14);
+  --band-2: rgba(109, 74, 255, .07);
+  --band-3: rgba(109, 74, 255, .03);
+  --danger: #d92d45;
+  --shadow: 0 1px 2px rgba(40, 20, 120, .05), 0 18px 44px -24px rgba(60, 30, 160, .28);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #110d24; --ink: #f1eeff; --ink-2: #c4bee6; --muted: #8e88b0;
+    --line: rgba(190, 175, 255, .12); --glass: rgba(30, 24, 60, .62); --glass-edge: rgba(190, 175, 255, .10);
+    --band-1: rgba(160, 140, 255, .18); --band-2: rgba(160, 140, 255, .09); --band-3: rgba(160, 140, 255, .04);
+    --ok-bg: rgba(25, 179, 107, .18); --warn-bg: rgba(242, 157, 12, .18); --bad-bg: rgba(229, 56, 79, .20);
+    --danger: #ff7b8e;
+  }
+}
+body {
+  background:
+    radial-gradient(55% 45% at 8% 0%, rgba(109, 74, 255, .20) 0%, transparent 62%),
+    radial-gradient(45% 40% at 95% 12%, rgba(255, 93, 143, .18) 0%, transparent 60%),
+    radial-gradient(60% 50% at 50% 110%, rgba(24, 195, 176, .16) 0%, transparent 58%),
+    var(--bg);
+  background-attachment: fixed;
+}
+::selection { background: rgba(255, 93, 143, .3); }
+:focus-visible { outline-color: var(--brand); }
+
+/* estrellas y marca */
+.stars svg { fill: var(--brand); }
+.st2 { fill: var(--brand-2) !important; } .st3 { fill: var(--brand-3) !important; } .st4 { fill: var(--sun) !important; }
+.brand svg { fill: var(--brand); }
+.wordmark { background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.wordmark svg { fill: var(--brand-2); }
+.eyebrow { color: var(--brand); }
+.eyebrow svg { fill: var(--brand-2); }
+h1 { background: linear-gradient(120deg, var(--ink) 0%, var(--ink) 55%, var(--brand) 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.chip { background: var(--grad); color: #fff; }
+.nav-a[aria-current="page"] { color: var(--brand); background: var(--band-2); }
+
+/* botones y controles */
+.btn { background: var(--grad); color: #fff; box-shadow: 0 10px 24px -12px rgba(109, 74, 255, .7); }
+.btn.ghost { background: transparent; color: var(--brand); box-shadow: inset 0 0 0 1.5px var(--brand); }
+.btn.soft { background: var(--band-2); color: var(--brand); box-shadow: none; }
+.btn.danger { background: transparent; color: var(--danger); box-shadow: inset 0 0 0 1.5px var(--danger); }
+.card.ink { background: var(--grad); border-color: transparent; color: #fff; }
+.card.ink .muted, .card.ink .eyebrow { color: rgba(255, 255, 255, .78); }
+.card.ink .eyebrow svg { fill: #fff; }
+.card.ink .btn { background: #fff; color: var(--brand); box-shadow: none; }
+.card.ink .btn.ghost { background: transparent; color: #fff; box-shadow: inset 0 0 0 1.5px #fff; }
+.tabs { background: var(--band-2); }
+.tabs button[aria-selected="true"] { background: var(--grad); color: #fff; }
+.chip-t[aria-pressed="true"] { background: var(--brand); border-color: var(--brand); color: #fff; }
+.opt[aria-pressed="true"] { background: var(--brand); border-color: var(--brand); color: #fff; }
+.input:focus { outline-color: var(--brand); }
+.check input { accent-color: var(--brand); }
+.note { border-left-color: var(--brand); background: var(--band-3); border-radius: 0 12px 12px 0; padding: 10px 14px; }
+.steps-bar i.on { background: var(--grad); }
+.pwrules span.ok { color: var(--ok); }
+.codebox { background: var(--grad-soft); color: var(--brand); }
+.toast, #tip { background: var(--ink); }
+.loading i { background: var(--brand-2); }
+.status-screen .icon, .tl .dot { background: var(--grad); }
+.kpi .v { color: var(--brand); }
+.stat .v { background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.step-card svg.ico, .measure svg, .tool svg { stroke: var(--brand); }
+.grid-3 > .step-card:nth-child(2) svg.ico { stroke: var(--brand-2); }
+.grid-3 > .step-card:nth-child(3) svg.ico { stroke: var(--brand-3); }
+.tool:hover { background: var(--band-2); border-color: var(--band-1); }
+details.faq summary::after { color: var(--brand); }
+
+/* píldoras de estado */
+.p-dark { background: var(--brand); color: #fff; }
+.p-mid { background: var(--warn-bg); color: #9a5b00; }
+.p-line { border: 1px solid var(--brand); color: var(--brand); }
+.p-soft { background: var(--band-2); color: var(--muted); }
+
+/* semáforo con colores reales */
+.lv-estable { background: var(--ok-bg); color: #0c6b40; border-color: rgba(25, 179, 107, .35) !important; }
+.lv-atencion { background: var(--warn-bg); color: #8a5200; border-color: rgba(242, 157, 12, .45) !important; }
+.lv-alerta { background: var(--bad); color: #fff; border-color: var(--bad) !important; }
+.lv-protegido { color: var(--brand); border-color: rgba(109, 74, 255, .45) !important; }
+@media (prefers-color-scheme: dark) {
+  .lv-estable { color: #6ff0ad; } .lv-atencion { color: #ffcf73; }
+}
+.course.lv-estable { box-shadow: inset 0 -4px 0 var(--ok); }
+.course.lv-atencion { box-shadow: inset 0 -4px 0 var(--warn); }
+.course[aria-pressed="true"] { outline-color: var(--brand); }
+
+/* caras del registro de ánimo: cada una con su color */
+.mood { filter: none; }
+.mood:nth-child(1) { background: #ffe1e5; } .mood:nth-child(2) { background: #ffe9d6; }
+.mood:nth-child(3) { background: #fff4cc; } .mood:nth-child(4) { background: #dcf6ec; } .mood:nth-child(5) { background: #d9f3ff; }
+@media (prefers-color-scheme: dark) { .mood:nth-child(n) { background: var(--band-2); } }
+.mood[aria-pressed="true"] { background: var(--grad) !important; border-color: transparent; transform: translateY(-3px) scale(1.04); box-shadow: 0 12px 24px -12px rgba(109, 74, 255, .8); }
+.sim-faces span { filter: none; background: var(--band-2); }
+
+/* gráficos */
+.chart-box { color: var(--brand); }
+.chart-box svg circle[r="5.5"] { fill: var(--brand-2); }
+
+/* respiración y juegos */
+.orb { background: radial-gradient(circle at 32% 28%, #ffd3e2, #b04cff 55%, #6d4aff); color: #fff; }
+.bubble { border-color: rgba(109, 74, 255, .45); background: radial-gradient(circle at 32% 28%, rgba(255, 255, 255, .95), rgba(176, 76, 255, .18) 60%, rgba(24, 195, 176, .22)); }
+.mem { background: var(--grad); }
+.mem.open { background: var(--band-2); }
+.mem.done { background: var(--ok-bg); opacity: .8; }
+.sky { background: linear-gradient(180deg, #cfe9ff, #f3e8ff); }
+@media (prefers-color-scheme: dark) { .sky { background: linear-gradient(180deg, #1c2a55, #2a1a4a); } }
+.helpline b { color: #fff; }
+
+/* chat */
+.msg { background: var(--band-2); }
+.msg.mine { background: var(--grad); color: #fff; }
+.thread.on { border-color: var(--brand); }
