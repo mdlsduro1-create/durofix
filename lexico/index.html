@@ -290,6 +290,19 @@ textarea.write{width:100%;min-height:130px;padding:16px;border:2.5px solid var(-
 .sw::after{content:"";position:absolute;top:3px;left:3px;width:23px;height:23px;border-radius:50%;background:var(--ink);transition:transform .2s}
 .sw.on{background:var(--y)}
 .sw.on::after{transform:translateX(24px)}
+.reto .w{font-size:1.45rem}
+.rdots{display:flex;gap:4px}.rdots i{width:10px;height:10px;border-radius:50%;border:2px solid var(--ink)}.rdots i.f{background:var(--ink)}
+.mic-wrap{display:flex;flex-direction:column;align-items:center;gap:10px;margin:8px 0 14px}
+.mic{width:112px;height:112px;border-radius:50%;background:var(--ink);color:var(--y);display:flex;align-items:center;justify-content:center;box-shadow:0 5px 0 #000;transition:transform .12s}
+.mic svg{width:48px;height:48px}
+.mic:active{transform:translateY(3px);box-shadow:0 2px 0 #000}
+.mic.on{background:var(--y);color:var(--ink);border:3px solid var(--ink);animation:pulse 1.2s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(17,17,17,.45)}70%{box-shadow:0 0 0 22px rgba(17,17,17,0)}100%{box-shadow:0 0 0 0 rgba(17,17,17,0)}}
+.timer{font-family:var(--serif);font-style:italic;font-weight:900;font-size:3rem;line-height:1}
+.timer.low{color:#000;background:var(--y);padding:0 10px;border-radius:8px}
+.transcript{min-height:70px;padding:14px;border:2px dashed var(--ink);border-radius:12px;font-weight:600;font-size:1.05rem}
+.transcript:empty::before{content:"Aquí aparecerá lo que digas.";color:var(--mute)}
+.scrap.poem{font-family:var(--serif);font-style:italic;font-weight:700;font-size:1.15rem;line-height:1.6}
 .credits{font-size:.8rem;font-weight:600;color:var(--mute);margin-top:20px;line-height:1.5}
 .sec-t{font-family:var(--serif);font-style:italic;font-weight:900;font-size:1.7rem;margin:28px 0 12px;line-height:1}
 
@@ -782,7 +795,7 @@ function stemsOf(w){
   }
   return [...out];
 }
-const hasWord = (txt, w) => { const n = norm(txt); return w.stems.some(s => n.includes(s)); };
+const hasWord = (txt, w) => (norm(txt).match(/[a-zñ]+/g) || []).some(tok => w.stems.some(s => tok.startsWith(s)));
 /* ¿Comparten sinónimos? (evita distractores ambiguos) */
 function clash(a,b){ return a.s.some(x => b.s.includes(x)) || a.s.includes(b.p) || b.s.includes(a.p); }
 /* resalta la palabra (y sus formas) dentro de un texto */
@@ -1017,6 +1030,8 @@ const IC = {
   x:`<svg viewBox="0 0 24 24"><path class="pencil" d="M5 5 Q12 12 19 19 M19 5 Q12 12 5 19" style="stroke-width:2.6"/></svg>`,
   hoy:`<svg viewBox="0 0 28 28" fill="none" stroke="#111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 14 Q14 3 25 14 Q14 25 3 14Z"/><circle cx="14" cy="14" r="4.2"/><circle class="tdot" cx="14" cy="14" r="1.6" fill="#111" stroke="none"/></svg>`,
   lex:`<svg viewBox="0 0 28 28" fill="none" stroke="#111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6c4-1.5 7-1 10 1.5C17 5 20 4.5 24 6v16c-4-1.5-7-1-10 1.5C11 21 8 20.5 4 22z"/><path d="M14 7.5v16"/></svg>`,
+  retos:`<svg viewBox="0 0 28 28" fill="none" stroke="#111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="10" y="3" width="8" height="14" rx="4"/><path d="M6 13a8 8 0 0 0 16 0M14 21v4M10 25h8"/></svg>`,
+  mic:`<svg viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="10" y="3" width="8" height="14" rx="4"/><path d="M6 13a8 8 0 0 0 16 0M14 21v4M10 25h8"/></svg>`,
   perfil:`<svg viewBox="0 0 28 28" fill="none" stroke="#111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3 L22 10 L14 25 L6 10Z"/><path d="M6 10h16M14 3v22"/></svg>`,
   ok:`<svg class="ic" viewBox="0 0 40 40"><path class="pencil" style="stroke-width:3" d="M6 22 Q12 26 16 33 Q22 18 36 5"/></svg>`,
   no:`<svg class="ic" viewBox="0 0 40 40"><path class="pencil" style="stroke-width:3" d="M8 8 Q20 21 33 34 M33 7 Q19 20 7 33"/></svg>`
@@ -1049,12 +1064,12 @@ function renderTop(){
 }
 function renderTabs(){
   const t = (k,l) => `<button class="tab${TAB===k?' on':''}" data-a="tab" data-t="${k}" aria-current="${TAB===k?'page':'false'}">${IC[k]}<span>${l}</span></button>`;
-  $('#tabs').innerHTML = `<div class="tabs-in">${t('hoy','Hoy')}${t('lex','Mi léxico')}${t('perfil','Perfil')}</div>`;
+  $('#tabs').innerHTML = `<div class="tabs-in">${t('hoy','Hoy')}${t('retos','Retos')}${t('lex','Mi léxico')}${t('perfil','Perfil')}</div>`;
 }
 function render(){
   renderTop(); renderTabs();
   const v = $('#view');
-  v.innerHTML = `<div class="view">${TAB==='hoy' ? vHoy() : TAB==='lex' ? vLex() : vPerfil()}</div>`;
+  v.innerHTML = `<div class="view">${TAB==='hoy' ? vHoy() : TAB==='retos' ? vRetos() : TAB==='lex' ? vLex() : vPerfil()}</div>`;
   requestAnimationFrame(() => setTimeout(() => document.querySelectorAll('#view .hl').forEach(e => e.classList.add('on')), 120));
   if(TAB==='lex'){ const s=$('#busca'); if(s){ s.value = BUSCA; s.oninput = e => { BUSCA = e.target.value; const l=$('#wlist'); if(l) l.innerHTML = lexList(); }; } }
 }
@@ -1104,7 +1119,7 @@ function vHoy(){
   for(let i=6;i>=0;i--){ const d = new Date(now); d.setDate(now.getDate()-i); const n = dayNum(d);
     week += `<div class="wd${S.days.includes(n)?' on':''}${i===0?' today':''}"><i></i>${letras[d.getDay()]}</div>`; }
 
-  return `${hero}${cta}${teaser}
+  return `${hero}${cta}${teaser}${calleCard()}
     <div class="card blk"><div class="row"><div style="flex:1"><div class="kicker">Tu nivel</div><div class="lvname">${cur.n}</div></div>
       <div style="text-align:right"><div class="big-n">${S.xp}</div><div class="kicker">XP</div></div></div>
       <div class="bar"><i class="${pct>=100?'full':''}" style="width:${Math.max(3,pct)}%"></i></div>
@@ -1153,6 +1168,7 @@ function vPerfil(){
       <div class="card"><small>Precisión</small><div class="big-n">${acc}%</div></div>
     </div>
     <div class="card blk row">${IC.drop.replace('<svg ','<svg style="width:34px;height:34px;flex:none" ')}<div><b>${S.lives} de ${MAXV} gotas de tinta</b><div class="mute" style="font-size:.88rem">${regen} Cada error gasta una gota.</div></div></div>
+    ${insigniasHTML()}
     <h2 class="sec-t">Escalera de niveles</h2><div class="ladder">${ladder}</div>
     <h2 class="sec-t">Ajustes</h2>
     <button class="setting" data-a="toggle-sound"><span>Sonidos<small>Efectos sutiles al acertar y fallar</small></span><span class="sw${S.sound?' on':''}" role="switch" aria-checked="${S.sound}"></span></button>
@@ -1499,6 +1515,214 @@ function noInk(){
     <button class="btn primary" data-a="go-lex">Ir a Mi léxico</button><button class="btn ghost" data-a="close-modal">Cerrar</button>`, true);
 }
 
+/* ===================== Retos orales: lo que la IA no puede hacer por ti =====================
+   Hablar en vivo, pensar rápido y recordar. Usan el reconocimiento de voz del navegador
+   (sin coste); si el navegador no lo tiene, se puede transcribir a mano en modo honor. */
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+const SITUACIONES = ['Te dicen: «Siempre llegas tarde».','Un compañero se atribuye tu idea en una reunión.','Te preguntan por qué dejaste tu último trabajo.',
+  'Tu vecino pone la música altísima a medianoche.','Te sirven un plato frío en un restaurante caro.','Alguien te interrumpe por tercera vez.',
+  'Te piden tu opinión sincera sobre un regalo horrible.','Te reprochan no haber contestado un mensaje.','Un amigo te pide dinero prestado otra vez.',
+  'Te dicen que tu plan es imposible.','Te felicitan por algo que hizo otra persona.','Te preguntan cuál es tu mayor defecto.',
+  'Alguien critica tu ciudad delante de ti.','Te ofrecen un ascenso que no quieres.','Te preguntan qué opinas de las redes sociales.'];
+const TEMAS = ['el último viaje que hiciste','tu comida favorita','por qué madrugar está sobrevalorado','un libro que te cambió','la mejor decisión de tu vida',
+  'tu barrio','el móvil','la amistad','un miedo que superaste','los lunes','tu abuela o tu abuelo','la música que escuchabas a los quince',
+  'el café','una ciudad que te gustaría conocer','el trabajo de tus sueños','el silencio','la lluvia','un error del que aprendiste','la puntualidad'];
+const ABSURDOS = ['Los lunes deberían ser festivos.','La piña en la pizza es alta cocina.','Los calcetines desparejados son una forma de arte.',
+  'Las reuniones deberían hacerse de pie y en silencio.','Los gatos gobernarían mejor que nosotros.','Habría que prohibir los despertadores.',
+  'El invierno es la mejor estación para ir a la playa.','La siesta debería ser obligatoria por ley.','Los domingos deberían durar treinta y seis horas.',
+  'Hablar con las plantas debería ser asignatura escolar.','Todo el mundo debería llevar sombrero de copa.'];
+const OCASIONES = ['la boda de tus mejores amigos','la jubilación de una compañera querida','los noventa años de tu abuela','la despedida de un amigo que emigra',
+  'la victoria de tu equipo de barrio','la inauguración de una biblioteca','el fin de curso de una clase','el reencuentro con tus amigos de la infancia'];
+/* Poemas de dominio público, transcritos literalmente */
+const POEMAS = [
+  {t:'Rima XXI', aut:'Gustavo Adolfo Bécquer', v:['¿Qué es poesía?, dices mientras clavas','en mi pupila tu pupila azul.','¿Qué es poesía? ¿Y tú me lo preguntas?','Poesía… eres tú.']},
+  {t:'Proverbios y cantares, XXIX', aut:'Antonio Machado', v:['Caminante, son tus huellas','el camino y nada más;','caminante, no hay camino,','se hace camino al andar.','Al andar se hace camino,','y al volver la vista atrás','se ve la senda que nunca','se ha de volver a pisar.','Caminante, no hay camino,','sino estelas en la mar.']},
+  {t:'Coplas por la muerte de su padre (inicio)', aut:'Jorge Manrique', v:['Recuerde el alma dormida,','avive el seso y despierte','contemplando','cómo se pasa la vida,','cómo se viene la muerte','tan callando;']},
+  {t:'Redondillas (inicio)', aut:'Sor Juana Inés de la Cruz', v:['Hombres necios que acusáis','a la mujer sin razón,','sin ver que sois la ocasión','de lo mismo que culpáis:','si con ansia sin igual','solicitáis su desdén,','¿por qué queréis que obren bien','si las incitáis al mal?']},
+  {t:'Amor constante más allá de la muerte', aut:'Francisco de Quevedo', v:['Cerrar podrá mis ojos la postrera','sombra que me llevare el blanco día,','y podrá desatar esta alma mía','hora a su afán ansioso lisonjera;','mas no de esotra parte en la ribera','dejará la memoria, en donde ardía:','nadar sabe mi llama el agua fría,','y perder el respeto a ley severa.','Alma a quien todo un dios prisión ha sido,','venas que humor a tanto fuego han dado,','médulas que han gloriosamente ardido,','su cuerpo dejará, no su cuidado;','serán ceniza, mas tendrá sentido;','polvo serán, mas polvo enamorado.']}
+];
+const RETOS = [
+  {id:'voz',     n:1, need:1,  secs:20,  t:'Dila en voz alta',         d:'Una frase con la palabra, dicha en voz alta. Sin papel.'},
+  {id:'calle',   n:1, need:1,  secs:0,   t:'La palabra en la calle',   d:'Úsala hoy en una conversación de verdad. Mañana te pregunto.'},
+  {id:'replica', n:2, need:3,  secs:10,  t:'Réplica en 10 segundos',   d:'Te plantean una situación y respondes al vuelo con la palabra.'},
+  {id:'minuto',  n:2, need:5,  secs:60,  t:'Un minuto sin papel',      d:'Tres palabras, un tema y sesenta segundos hablando.'},
+  {id:'memoria', n:3, need:0,  secs:0,   t:'De memoria',               d:'Aprende un poema clásico verso a verso y recítalo.'},
+  {id:'defensa', n:3, need:8,  secs:90,  t:'Defiende lo indefendible', d:'Noventa segundos argumentando una postura absurda.'},
+  {id:'brindis', n:3, need:12, secs:150, t:'El brindis épico',         d:'Dos minutos y medio de discurso improvisado para una ocasión.'}
+];
+const MULETILLAS = ['eh','ehh','em','emm','mmm','o sea','en plan','digamos','sabes','tipo','vale','bueno pues'];
+let R = null, REC = null;
+const pickN = (arr, n) => shuffle(arr).slice(0, n);
+const wordsOf = t => (norm(t).match(/[a-zñ]+/g) || []);
+function analizar(text, targets, secs){
+  const ws = wordsOf(text), n = norm(' ' + text + ' ');
+  const usadas = targets.filter(w => hasWord(text, w));
+  const cultas = PALABRAS.filter(w => hasWord(text, w));
+  const mul = MULETILLAS.reduce((c, m) => c + (n.match(new RegExp('[^a-zñ]' + m.replace(' ', '\\s+') + '(?=[^a-zñ])', 'g')) || []).length, 0);
+  return {palabras: ws.length, ppm: secs >= 10 ? Math.round(ws.length / (secs / 60)) : '—', usadas, cultas, mul};
+}
+/* LCS por palabras: qué parte del poema se recitó en orden */
+function parecido(a, b){
+  const x = wordsOf(a), y = wordsOf(b); if(!x.length) return 0;
+  const dp = Array(y.length + 1).fill(0);
+  for(let i = 1; i <= x.length; i++){ let prev = 0; for(let j = 1; j <= y.length; j++){ const tmp = dp[j]; dp[j] = x[i-1] === y[j-1] ? prev + 1 : Math.max(dp[j], dp[j-1]); prev = tmp; } }
+  return dp[y.length] / x.length;
+}
+function retoUnlocked(r){ return learnedList().length >= r.need; }
+function retoWords(n){ const l = learnedList(); return pickN(l.length ? l : PALABRAS.slice(0, 5), n); }
+
+/* --- Vista de la pestaña --- */
+function vRetos(){
+  S.retos = S.retos || {};
+  const items = RETOS.map(r => {
+    const st = S.retos[r.id] || {}, on = retoUnlocked(r);
+    const dots = Array.from({length:3}, (_, i) => `<i class="${i < r.n ? 'f' : ''}"></i>`).join('');
+    return `<button class="witem reto${on ? '' : ' locked'}" data-a="${on ? 'reto' : 'reto-lock'}" data-r="${r.id}">
+      <div class="row" style="justify-content:space-between"><div class="w">${r.t}</div><span class="rdots">${dots}</span></div>
+      <div class="d">${r.d}</div>
+      <div class="wmeta"><span>${on ? (st.ok ? `Logrado ${st.ok} ${st.ok === 1 ? 'vez' : 'veces'}` : 'Sin estrenar') : `Se abre con ${r.need} palabras aprendidas`}</span><span>${r.secs ? r.secs + ' s' : ''}</span></div></button>`;
+  }).join('');
+  return `<div class="ph"><h1>Retos <span class="hl b">en voz alta</span></h1><p>Una IA puede escribir por ti. Hablar, recordar y pensar rápido, no.</p></div>
+    ${SR ? '' : '<div class="warn">Tu navegador no permite dictado. Puedes hacer los retos en voz alta y transcribirlos a mano (modo honor).</div>'}
+    <div class="wlist">${items}</div>`;
+}
+function calleCard(){
+  const c = S.calle; if(!c || c.done || c.day >= today()) return '';
+  const w = BYID[c.id]; if(!w) return '';
+  return `<div class="card blk"><div class="kicker">La palabra en la calle</div>
+    <p style="margin:8px 0 12px;font-weight:700">¿Usaste <mark class="u">${esc(w.p)}</mark> en una conversación de verdad?</p>
+    <div class="row"><button class="btn yellow" data-a="calle-si" style="flex:1">Sí</button><button class="btn" data-a="calle-no" style="flex:1;margin-top:0">Todavía no</button></div></div>`;
+}
+function insigniasHTML(){
+  S.retos = S.retos || {};
+  const got = RETOS.filter(r => (S.retos[r.id] || {}).ok);
+  if(!got.length) return '';
+  return `<h2 class="sec-t">Insignias</h2><div class="chips">${got.map(r => `<span class="chip on">✶ ${r.t}</span>`).join('')}</div>`;
+}
+
+/* --- Pantalla del reto --- */
+function openReto(id){
+  const r = RETOS.find(x => x.id === id); if(!r) return;
+  R = {r, text:'', interim:'', running:false, t:0};
+  if(id === 'voz'){ R.words = retoWords(1); R.prompt = `Di en voz alta una frase con <mark class="u">${esc(R.words[0].p)}</mark>. Piensa en algo de tu día.`; }
+  if(id === 'replica'){ R.words = retoWords(1); R.prompt = `${esc(SITUACIONES[rnd(SITUACIONES.length)])}<br><br>Responde al vuelo usando <mark class="u">${esc(R.words[0].p)}</mark>.`; }
+  if(id === 'minuto'){ R.words = retoWords(3); R.prompt = `Habla un minuto sobre <b>${esc(TEMAS[rnd(TEMAS.length)])}</b> usando: ${R.words.map(w => `<mark class="u">${esc(w.p)}</mark>`).join(', ')}.`; }
+  if(id === 'defensa'){ R.words = retoWords(2); R.prompt = `Defiende con toda seriedad: <b>${esc(ABSURDOS[rnd(ABSURDOS.length)])}</b><br><br>Cuela ${R.words.map(w => `<mark class="u">${esc(w.p)}</mark>`).join(' y ')}.`; }
+  if(id === 'brindis'){ R.words = retoWords(3); R.prompt = `Levanta la copa por <b>${esc(OCASIONES[rnd(OCASIONES.length)])}</b>. Que suene épico. Usa ${R.words.map(w => `<mark class="u">${esc(w.p)}</mark>`).join(', ')}.`; }
+  $('#lesson').hidden = false; document.body.style.overflow = 'hidden';
+  $('#lesson').innerHTML = `<div class="l-top"><button class="xbtn" data-a="reto-quit" aria-label="Salir del reto">${IC.x}</button>
+    <div class="kicker" style="flex:1">${r.t}</div><div class="lives">${'●'.repeat(r.n)}</div></div>
+    <div class="l-body" id="lbody"></div><div class="l-foot" id="lfoot"></div><div class="sheet" id="sheet"><div class="sheet-in" id="sheetIn"></div></div>`;
+  if(id === 'calle') return retoCalle();
+  if(id === 'memoria') return retoPoemas();
+  retoPantalla();
+}
+function retoPantalla(){
+  const r = R.r;
+  body(`<p class="ex-k"><i></i>Reto ${'●'.repeat(r.n)}</p><h2 class="ex-t">${r.t}</h2>
+    <div class="scrap">${R.prompt}</div>
+    <div class="mic-wrap"><div class="timer" id="timer">${r.secs}</div>
+      <button class="mic" id="mic" data-a="${SR ? 'reto-go' : 'reto-honor'}" aria-label="Empezar a hablar">${IC.mic}</button>
+      <p class="hint" id="michint">${SR ? 'Toca el micrófono y habla. Se detiene solo al acabar el tiempo.' : 'Dilo en voz alta y luego escribe lo que dijiste.'}</p></div>
+    <div class="transcript" id="tr" aria-live="polite"></div>`);
+  foot('');
+}
+function retoGo(){
+  if(R.running) return retoStop();
+  R.running = true; R.text = ''; R.interim = ''; R.t0 = Date.now();
+  $('#mic').classList.add('on'); $('#michint').textContent = 'Te escucho… toca otra vez para terminar.';
+  play('tap');
+  try{
+    REC = new SR(); REC.lang = (navigator.language || 'es-ES').startsWith('es') ? navigator.language : 'es-ES';
+    REC.continuous = true; REC.interimResults = true;
+    REC.onresult = e => { let interim = ''; for(let i = e.resultIndex; i < e.results.length; i++){ const res = e.results[i]; if(res.isFinal) R.text += res[0].transcript + ' '; else interim += res[0].transcript; }
+      R.interim = interim; const t = $('#tr'); if(t) t.innerHTML = markAll(R.text + ' ' + interim); };
+    REC.onerror = ev => { if(ev.error === 'not-allowed' || ev.error === 'service-not-allowed'){ R.running = false; toast('Sin permiso de micrófono: usa el modo honor'); retoHonor(); } };
+    REC.onend = () => { if(R && R.running) try{ REC.start(); }catch(e){} };
+    REC.start();
+  }catch(e){ R.running = false; retoHonor(); return; }
+  const tick = () => { if(!R || !R.running) return; const left = R.r.secs - Math.floor((Date.now() - R.t0) / 1000);
+    const el = $('#timer'); if(el){ el.textContent = Math.max(0, left); el.classList.toggle('low', left <= 5); }
+    if(left <= 0) retoStop(); else R.timer = setTimeout(tick, 250); };
+  tick();
+}
+function retoStop(){
+  if(!R) return; R.running = false; clearTimeout(R.timer);
+  if(REC){ try{ REC.stop(); }catch(e){} REC = null; }
+  R.t = Math.min(R.r.secs, Math.max(1, Math.round((Date.now() - R.t0) / 1000)));
+  setTimeout(() => { const t = (R.text + ' ' + (R.interim || '')).trim(); R.fase === 'recitar' ? poemaResultado(t) : retoResultado(t); }, 500);
+}
+function retoHonor(){
+  const r = R.r;
+  body(`<p class="ex-k"><i></i>Modo honor</p><h2 class="ex-t">${r.t}</h2><div class="scrap">${R.prompt}</div>
+    <p class="ex-s">Dilo en voz alta (${r.secs} s) y luego escribe lo que dijiste, tal cual.</p>
+    <textarea class="write" id="wr" placeholder="Lo que dije fue…"></textarea>`);
+  foot(`<button class="btn primary" data-a="reto-honor-ok">Ver resultado</button>`);
+}
+const markAll = t => esc(t).replace(/[\p{L}]+/gu, tok => PALABRAS.some(w => w.stems.some(s => norm(tok).startsWith(s))) ? `<mark class="u">${tok}</mark>` : tok);
+function retoResultado(text){
+  const r = R.r, a = analizar(text, R.words || [], R.t || r.secs);
+  const need = {voz:[1,3], replica:[1,3], minuto:[2,60], defensa:[2,120], brindis:[3,180]}[r.id];
+  const ok = a.usadas.length >= need[0] && a.palabras >= need[1];
+  const xp = ok ? {voz:15, replica:20, minuto:30, defensa:40, brindis:50}[r.id] : 5;
+  S.retos = S.retos || {}; const st = S.retos[r.id] = S.retos[r.id] || {};
+  st.tries = (st.tries || 0) + 1; if(ok) st.ok = (st.ok || 0) + 1; st.best = Math.max(st.best || 0, a.cultas.length);
+  S.xp += xp; save(); play(ok ? 'win' : 'ko'); if(ok) confetti();
+  body(`<div class="celeb center">
+    <div class="kicker">${r.t}</div>
+    <h1 style="margin-top:8px;font-size:clamp(2.8rem,14vw,4.4rem)"><span class="hl">${ok ? '¡Dicho!' : 'Casi.'}</span></h1>
+    <p class="sub">${ok ? 'Lo dijiste tú, en voz alta y sin red.' : `Te faltó ${a.usadas.length < need[0] ? 'usar las palabras del reto' : 'hablar un poco más'}. Otra vez.`}</p>
+    <div class="tiles"><div class="tile y"><b>${a.usadas.length}/${(R.words || []).length}</b><span>Del reto</span></div>
+      <div class="tile"><b>${a.cultas.length}</b><span>Cultas</span></div><div class="tile"><b>${a.palabras}</b><span>Palabras</span></div></div>
+    ${r.secs >= 60 ? `<div class="tiles" style="margin-top:0"><div class="tile"><b>${a.ppm}</b><span>Por minuto</span></div><div class="tile"><b>${a.mul}</b><span>Muletillas*</span></div><div class="tile"><b>+${xp}</b><span>XP</span></div></div>` : `<p class="learned">+${xp} XP</p>`}
+    <div class="scrap" style="text-align:left;font-size:1rem">${text ? markAll(text) : '<span class="mute">No se oyó nada.</span>'}</div>
+    ${r.secs >= 60 ? '<p class="hint">* El dictado del móvil a veces borra los «eh» y «em»: la cifra real puede ser mayor.</p>' : ''}</div>`);
+  foot(`<button class="btn primary" data-a="reto-again">Otro intento <span class="arr">→</span></button><button class="btn ghost" data-a="reto-quit">Salir</button>`);
+}
+function retoCalle(){
+  const w = todaysWord() || learnedList().slice(-1)[0];
+  if(!w){ body('<p class="ex-s">Aprende tu primera palabra y vuelve.</p>'); foot(`<button class="btn" data-a="reto-quit">Volver</button>`); return; }
+  R.calleW = w;
+  body(`<p class="ex-k"><i></i>Fuera de la pantalla</p><h2 class="ex-t">La palabra en la calle</h2>
+    <div class="scrap">Hoy, en una conversación de verdad, di <mark class="u">${esc(w.p)}</mark>.<br><br>Con tu familia, en la tienda, con un amigo. Mañana te pregunto cómo fue.</div>
+    <p class="ex-s">Ejemplo: «${markWord(w.h, w)}»</p>`);
+  foot(`<button class="btn primary" data-a="calle-promesa">Me comprometo</button>`);
+}
+function retoPoemas(){
+  body(`<p class="ex-k"><i></i>Memoria</p><h2 class="ex-t">Elige un poema</h2><p class="ex-s">Lo lees, lo practicas con huecos y lo recitas sin mirar.</p>
+    <div class="wlist">${POEMAS.map((p, i) => `<button class="witem" data-a="poema" data-i="${i}"><div class="w" style="font-size:1.35rem">${esc(p.t)}</div><div class="d">${esc(p.aut)} · ${p.v.length} versos</div></button>`).join('')}</div>`);
+  foot('');
+}
+function poemaFase(i, fase){
+  const p = POEMAS[i]; R.poema = i; R.fase = fase;
+  const huecos = (v, k) => esc(v).replace(/[\p{L}]+/gu, (tok, off) => ((off + k) * 7) % 10 < 5 && tok.length > 2 ? '<span class="blank" style="min-width:2.5em">&nbsp;</span>' : tok);
+  if(fase === 'leer'){
+    body(`<p class="ex-k"><i></i>1 · Léelo en voz alta tres veces</p><h2 class="ex-t">${esc(p.t)}</h2><div class="scrap poem">${p.v.map(esc).join('<br>')}</div><p class="ex-s">${esc(p.aut)}</p>`);
+    foot(`<button class="btn primary" data-a="mem-fase" data-f="huecos">Practicar con huecos</button>`);
+  } else if(fase === 'huecos'){
+    body(`<p class="ex-k"><i></i>2 · Dilo completando los huecos</p><h2 class="ex-t">${esc(p.t)}</h2><div class="scrap poem">${p.v.map((v, k) => huecos(v, k)).join('<br>')}</div>`);
+    foot(`<button class="btn primary" data-a="mem-fase" data-f="recitar">Recitar sin mirar</button><button class="btn ghost" data-a="mem-fase" data-f="leer">Volver a leer</button>`);
+  } else {
+    R.r = Object.assign({}, R.r, {secs: Math.max(30, p.v.length * 8)});
+    R.prompt = `<span class="mute">${esc(p.t)} · ${esc(p.aut)}</span><br>${p.v.map(v => esc(v.split(' ')[0]) + ' …').join('<br>')}`;
+    retoPantalla();
+  }
+}
+function poemaResultado(text){
+  const p = POEMAS[R.poema], pct = Math.round(parecido(p.v.join(' '), text) * 100), ok = pct >= 85, xp = ok ? 60 : 5;
+  S.retos = S.retos || {}; const st = S.retos.memoria = S.retos.memoria || {};
+  st.tries = (st.tries || 0) + 1; if(ok){ st.ok = (st.ok || 0) + 1; st.poemas = Array.from(new Set((st.poemas || []).concat(p.t))); }
+  S.xp += xp; save(); play(ok ? 'win' : 'ko'); if(ok) confetti();
+  const dichas = new Set(wordsOf(text));
+  const marcado = p.v.map(v => esc(v).replace(/[\p{L}]+/gu, tok => dichas.has(norm(tok)) ? tok : `<s style="opacity:.5">${tok}</s>`)).join('<br>');
+  body(`<div class="celeb center"><div class="kicker">De memoria</div>
+    <h1 style="margin-top:8px;font-size:clamp(2.8rem,14vw,4.4rem)"><span class="hl">${pct}%</span></h1>
+    <p class="sub">${ok ? 'Ese poema ya es tuyo. Nadie te lo puede quitar.' : 'Las palabras tachadas son las que faltaron. Repasa y vuelve.'}</p>
+    <div class="scrap poem" style="text-align:left">${marcado}</div><p class="learned">+${xp} XP</p></div>`);
+  foot(`<button class="btn primary" data-a="mem-fase" data-f="${ok ? 'leer' : 'huecos'}">${ok ? 'Otra vez' : 'Practicar de nuevo'}</button><button class="btn ghost" data-a="reto-quit">Salir</button>`);
+}
+function closeReto(){ if(R && R.running){ R.running = false; clearTimeout(R.timer); if(REC){ try{ REC.stop(); }catch(e){} REC = null; } } R = null; $('#lesson').hidden = true; $('#lesson').innerHTML = ''; document.body.style.overflow = ''; render(); }
+
 /* ===================== Eventos ===================== */
 document.addEventListener('click', e => {
   const el = e.target.closest('[data-a]'); if(!el) return;
@@ -1533,6 +1757,18 @@ document.addEventListener('click', e => {
     case 'reset':
       openModal(`<h2 class="ex-t">¿Borrar todo?</h2><p class="ex-s">Se perderán tus palabras, tu racha y tus puntos. No se puede deshacer.</p>
         <button class="btn primary" data-a="reset-yes">Sí, empezar de cero</button><button class="btn ghost" data-a="close-modal">Cancelar</button>`, true); break;
+    case 'reto': openReto(el.dataset.r); break;
+    case 'reto-lock': { const r = RETOS.find(x => x.id === el.dataset.r); toast(`Aprende <b>${r.need}</b> palabras para abrirlo`); break; }
+    case 'reto-go': retoGo(); break;
+    case 'reto-honor': retoHonor(); break;
+    case 'reto-honor-ok': { const t = ($('#wr') || {}).value || ''; R.t = R.r.secs; R.fase === 'recitar' ? poemaResultado(t) : retoResultado(t); break; }
+    case 'reto-again': openReto(R.r.id); break;
+    case 'reto-quit': closeReto(); break;
+    case 'poema': poemaFase(+el.dataset.i, 'leer'); break;
+    case 'mem-fase': poemaFase(R.poema, el.dataset.f); break;
+    case 'calle-promesa': S.calle = {id: R.calleW.id, day: today(), done: false}; save(); toast(`Hoy toca decir <b>${esc(R.calleW.p)}</b>`); closeReto(); break;
+    case 'calle-si': { S.retos = S.retos || {}; const st = S.retos.calle = S.retos.calle || {}; st.ok = (st.ok || 0) + 1; S.calle.done = true; S.xp += 20; save(); play('win'); toast('Bien hecho: <b>+20 XP</b>'); render(); break; }
+    case 'calle-no': S.calle.day = today(); save(); toast('Mañana te vuelvo a preguntar'); render(); break;
     case 'reset-yes': S = DEF(); save(); closeModal(); TAB='hoy'; render(); toast('Cuaderno en blanco'); break;
   }
 });
